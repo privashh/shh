@@ -1,0 +1,17 @@
+{
+  "name": "shh",
+  "private": true,
+  "version": "0.0.0",
+  "description": "shh — a privacy L3 on Base (OP Stack)",
+  "packageManager": "pnpm@10.19.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "format": "prettier --write \"**/*.{ts,js,json,md}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.4.2",
+    "typescript": "5.4.5"
+  }
+}
