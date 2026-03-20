@@ -1,0 +1,21 @@
+{
+  "name": "@shh/circuits",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "shh zk circuits (Circom + Groth16): shielded UTXO join-split and compliant Privacy Pool withdraw",
+  "scripts": {
+    "compile": "node scripts/compile.mjs",
+    "setup": "node scripts/setup.mjs",
+    "build": "node scripts/compile.mjs && node scripts/setup.mjs",
+    "test": "node --test --test-force-exit \"test/**/*.test.cjs\""
+  },
+  "dependencies": {
+    "circomlib": "^2.0.5",
+    "snarkjs": "^0.7.5"
+  },
+  "devDependencies": {
+    "circomlibjs": "^0.1.7",
+    "poseidon-lite": "^0.3.0"
+  }
+}

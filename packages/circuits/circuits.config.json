@@ -1,0 +1,18 @@
+{
+  "ptau": {
+    "power": 16,
+    "url": "https://storage.googleapis.com/zkevm/ptau/powersOfTau28_hez_final_16.ptau"
+  },
+  "circuits": [
+    {
+      "name": "poolWithdraw",
+      "main": "circuits/pool/poolWithdraw.circom",
+      "verifier": "PoolWithdrawVerifier"
+    },
+    {
+      "name": "transaction2x2",
+      "main": "circuits/shielded/transaction2x2.circom",
+      "verifier": "Transaction2x2Verifier"
+    }
+  ]
+}
