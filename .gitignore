@@ -5,6 +5,15 @@ node_modules/
 # Build outputs
 dist/
 out/
+artifacts/
+cache/
+
+# Circuits — compiled artifacts & trusted setup
+packages/circuits/build/
+packages/circuits/ptau/*.ptau
+packages/circuits/keys/*.zkey
+packages/circuits/keys/*.wasm
+!packages/circuits/keys/.gitkeep
 
 # Env / secrets
 .env
