@@ -9,7 +9,8 @@ include "../lib/merkleProof.circom";
 //   * the state tree   (the deposit exists), and
 //   * the association tree (an ASP has marked the deposit as compliant),
 // and reveals nullifierHash to prevent double withdrawal — without revealing which
-// commitment.
+// commitment. Excluding a deposit from the association tree makes it non-withdrawable
+// through the private path, which is the regulatory equilibrium of Privacy Pools.
 template PrivacyPoolWithdraw(levels) {
     // ── public ──
     signal input stateRoot;
@@ -55,6 +56,14 @@ template PrivacyPoolWithdraw(levels) {
         assocTree.pathElements[i] <== assocPathElements[i];
     }
     assocTree.root === associationRoot;
+
+    // Bind public withdrawal parameters into the proof so a relayer cannot tamper
+    // with recipient/fee/etc. (constraints have no effect on the witness, but make the
+    // values part of the proven statement — standard anti-front-running technique).
+    signal recipientSquare <== recipient * recipient;
+    signal relayerSquare   <== relayer * relayer;
+    signal feeSquare       <== fee * fee;
+    signal refundSquare    <== refund * refund;
 }
 
 component main {public [
