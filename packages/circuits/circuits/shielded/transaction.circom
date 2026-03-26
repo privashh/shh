@@ -11,6 +11,8 @@ include "../lib/keypair.circom";
 //   note commitment = H(amount, pubKey, blinding),  pubKey = H(privKey)
 //   signature       = H(privKey, commitment, pathIndices)
 //   nullifier       = H(commitment, pathIndices, signature)
+//
+// publicAmount = (extAmount - fee) mod p:  > 0 deposit, < 0 withdraw, 0 private transfer.
 template Transaction(levels, nIns, nOuts) {
     // ── public ──
     signal input root;
@@ -36,6 +38,7 @@ template Transaction(levels, nIns, nOuts) {
     component inCommitmentHasher[nIns];
     component inNullifierHasher[nIns];
     component inTree[nIns];
+    component inCheckRoot[nIns];
 
     var sumIns = 0;
 
@@ -65,12 +68,19 @@ template Transaction(levels, nIns, nOuts) {
         for (var i = 0; i < levels; i++) {
             inTree[tx].pathElements[i] <== inPathElements[tx][i];
         }
-        inTree[tx].root === root;
+
+        // Only enforce the Merkle root for real (non-zero) inputs; zero-value inputs
+        // are dummies used to pad to nIns.
+        inCheckRoot[tx] = ForceEqualIfEnabled();
+        inCheckRoot[tx].in[0] <== root;
+        inCheckRoot[tx].in[1] <== inTree[tx].root;
+        inCheckRoot[tx].enabled <== inAmount[tx];
 
         sumIns += inAmount[tx];
     }
 
     component outCommitmentHasher[nOuts];
+    component outAmountCheck[nOuts];
 
     var sumOuts = 0;
 
@@ -81,7 +91,24 @@ template Transaction(levels, nIns, nOuts) {
         outCommitmentHasher[tx].inputs[2] <== outBlinding[tx];
         outCommitmentHasher[tx].out === outputCommitment[tx];
 
+        // amount must fit into 248 bits to prevent field overflow during summation
+        outAmountCheck[tx] = Num2Bits(248);
+        outAmountCheck[tx].in <== outAmount[tx];
+
         sumOuts += outAmount[tx];
+    }
+
+    // input nullifiers must be pairwise distinct (no in-tx double spend)
+    component sameNullifiers[nIns * (nIns - 1) / 2];
+    var index = 0;
+    for (var i = 0; i < nIns - 1; i++) {
+        for (var j = i + 1; j < nIns; j++) {
+            sameNullifiers[index] = IsEqual();
+            sameNullifiers[index].in[0] <== inputNullifier[i];
+            sameNullifiers[index].in[1] <== inputNullifier[j];
+            sameNullifiers[index].out === 0;
+            index++;
+        }
     }
 
     // value conservation: Σ in + public = Σ out  (mod p)
