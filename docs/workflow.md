@@ -11,24 +11,24 @@ can also be deployed to Base Sepolia / Base mainnet.
 
 ---
 
-## Phase 0 — Foundations & decisions
+## Phase 0 — Foundations & decisions ✅
 
-- [ ] Choose proving stack: Circom + Groth16 (snarkjs).
-- [ ] Choose value models: shielded UTXO (full-privacy chain) + fixed-denomination
+- [x] Choose proving stack: Circom + Groth16 (snarkjs).
+- [x] Choose value models: shielded UTXO (full-privacy chain) + fixed-denomination
       Privacy Pool with Association Sets (compliant variant).
-- [ ] Choose local orchestration: Docker Compose, single sequencer.
-- [ ] Choose contract tooling: Hardhat + TypeScript.
+- [x] Choose local orchestration: Docker Compose, single sequencer.
+- [x] Choose contract tooling: Hardhat + TypeScript.
 
 **Gate:** decisions recorded in this doc and architecture.md.
 
 ---
 
-## Phase 1 — Monorepo scaffold + privacy core
+## Phase 1 — Monorepo scaffold + privacy core ◐
 
 The cryptographic heart of the project, independent of the chain it runs on.
 
-- [ ] pnpm monorepo (`packages/*`, `apps/*`) + shared TS config.
-- [ ] `@shh/circuits` — Circom circuits + Groth16 trusted setup.
+- [x] pnpm monorepo (`packages/*`, `apps/*`) + shared TS config.
+- [x] `@shh/circuits` — Circom circuits + Groth16 trusted setup.
 - [ ] `@shh/contracts` — Hardhat pools, Merkle tree, verifiers.
 - [ ] `@shh/sdk` — note management, Merkle tree, witness + proof generation.
 
