@@ -7,5 +7,5 @@ export const FIELD_SIZE =
 /** Merkle tree depth shared by every shh tree (state + association). */
 export const LEVELS = 20;
 
-/** Nothing-up-my-sleeve empty-leaf value: keccak256("shh"). */
-export const ZERO_VALUE = BigInt(keccak256(toUtf8Bytes("shh")));
+/** Nothing-up-my-sleeve empty-leaf value: keccak256("shh") mod p. */
+export const ZERO_VALUE = BigInt(keccak256(toUtf8Bytes("shh"))) % FIELD_SIZE;
