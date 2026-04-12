@@ -77,7 +77,7 @@ export class MerkleTree {
     for (let level = 0; level < this.levels; level++) {
       const layer = this.layers[level];
       const isRight = idx % 2; // 1 ⇒ current node is the right child
-      const siblingIndex = isRight ? idx + 1 : idx - 1;
+      const siblingIndex = isRight ? idx - 1 : idx + 1;
       const sibling = siblingIndex < layer.length ? layer[siblingIndex] : this.zeros[level];
       pathElements.push(sibling);
       if (isRight) bits |= 1n << BigInt(level);
