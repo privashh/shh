@@ -30,7 +30,7 @@ The cryptographic heart of the project, independent of the chain it runs on.
 - [x] pnpm monorepo (`packages/*`, `apps/*`) + shared TS config.
 - [x] `@shh/circuits` — Circom circuits + Groth16 trusted setup.
 - [ ] `@shh/contracts` — Hardhat pools, Merkle tree, verifiers.
-- [ ] `@shh/sdk` — note management, Merkle tree, witness + proof generation.
+- [x] `@shh/sdk` — note management, Merkle tree, witness + proof generation.
 
 **Gate:** circuits compile + setup; sdk/circuits/contracts tests pass.
 
