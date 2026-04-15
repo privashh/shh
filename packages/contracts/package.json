@@ -1,0 +1,24 @@
+{
+  "name": "@shh/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "shh smart contracts: Privacy Pool, Shielded UTXO pool, Poseidon Merkle tree, shielded bridge",
+  "scripts": {
+    "build": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
+    "deploy:baseSepolia": "hardhat run scripts/deploy.ts --network baseSepolia"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@shh/sdk": "workspace:*",
+    "@swc/core": "^1.10.1",
+    "circomlibjs": "^0.1.7",
+    "dotenv": "^16.4.7",
+    "ethers": "^6.13.4",
+    "hardhat": "^2.22.17",
+    "snarkjs": "^0.7.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}
