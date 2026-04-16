@@ -43,4 +43,40 @@ contract PrivacyPool is MerkleTreeWithHistory {
         commitments[commitment] = true;
         emit Deposit(commitment, leafIndex, block.timestamp);
     }
+
+    /// @notice Withdraw `denomination − fee` to `recipient`, `fee` to `relayer`, proving
+    ///         membership in the state tree and the ASP association tree without revealing which.
+    function withdraw(
+        uint256[8] calldata proof,
+        uint256 stateRoot,
+        uint256 associationRoot,
+        uint256 nullifierHash,
+        address recipient,
+        address relayer,
+        uint256 fee,
+        uint256 refund
+    ) external payable {
+        require(!nullifierHashes[nullifierHash], "nullifier already spent");
+        require(isKnownRoot(stateRoot), "unknown state root");
+        require(fee <= denomination, "fee exceeds denomination");
+        require(asp.isValidAssociationRoot(associationRoot), "invalid association root");
+
+        require(
+            verifier.verifyProof(
+                [proof[0], proof[1]],
+                [[proof[2], proof[3]], [proof[4], proof[5]]],
+                [proof[6], proof[7]],
+                [stateRoot, associationRoot, nullifierHash, uint256(uint160(recipient)), uint256(uint160(relayer)), fee, refund]
+            ),
+            "invalid withdraw proof"
+        );
+
+        uint256 amount = denomination - fee;
+        (bool okR, ) = recipient.call{value: amount}("");
+        require(okR, "recipient payment failed");
+        if (fee > 0) {
+            (bool okF, ) = relayer.call{value: fee}("");
+            require(okF, "relayer payment failed");
+        }
+    }
 }
