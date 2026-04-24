@@ -12,6 +12,9 @@
     "circuits:setup": "pnpm --filter @shh/circuits setup",
     "circuits:test": "pnpm --filter @shh/circuits test",
     "sdk:build": "pnpm --filter @shh/sdk build",
+    "contracts:build": "pnpm --filter @shh/contracts build",
+    "contracts:test": "pnpm --filter @shh/contracts test",
+    "deploy:local": "pnpm --filter @shh/contracts deploy:local",
     "format": "prettier --write \"**/*.{ts,js,json,md}\""
   },
   "devDependencies": {
