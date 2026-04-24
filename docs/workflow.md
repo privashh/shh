@@ -23,13 +23,13 @@ can also be deployed to Base Sepolia / Base mainnet.
 
 ---
 
-## Phase 1 — Monorepo scaffold + privacy core ◐
+## Phase 1 — Monorepo scaffold + privacy core ✅
 
 The cryptographic heart of the project, independent of the chain it runs on.
 
 - [x] pnpm monorepo (`packages/*`, `apps/*`) + shared TS config.
 - [x] `@shh/circuits` — Circom circuits + Groth16 trusted setup.
-- [ ] `@shh/contracts` — Hardhat pools, Merkle tree, verifiers.
+- [x] `@shh/contracts` — Hardhat pools, Merkle tree, verifiers.
 - [x] `@shh/sdk` — note management, Merkle tree, witness + proof generation.
 
 **Gate:** circuits compile + setup; sdk/circuits/contracts tests pass.
@@ -50,9 +50,10 @@ The cryptographic heart of the project, independent of the chain it runs on.
 
 ---
 
-## Phase 4 — Bridges
+## Phase 4 — Bridges ◐ scaffolded
 
-- [ ] ShieldedBridge bidirectional (deposit + withdrawal).
+- [x] ShieldedBridge bidirectional (deposit + withdrawal). Both unit-tested.
+- [ ] Wire to the live OP portal address from the booted devnet.
 
 ---
 
