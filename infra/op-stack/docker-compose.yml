@@ -1,0 +1,53 @@
+# shh L3 — local OP Stack devnet (single sequencer), settling to a local "Base" L1.
+version: "3.8"
+
+name: shh-op-stack
+
+services:
+  # ── L1: a local Base stand-in (anvil). ──
+  l1:
+    image: ghcr.io/foundry-rs/foundry:latest
+    container_name: shh-l1
+    entrypoint:
+      - sh
+      - -c
+      - "anvil --host 0.0.0.0 --port 8545 --chain-id 900 --block-time 3 --state /data/l1-state.json"
+    ports:
+      - "8545:8545"
+    volumes:
+      - ./data/l1:/data
+    healthcheck:
+      test: ["CMD", "cast", "block-number", "--rpc-url", "http://localhost:8545"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # ── L2 execution client ──
+  op-geth:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-geth:latest
+    container_name: shh-op-geth
+    depends_on:
+      l1:
+        condition: service_healthy
+    entrypoint:
+      - sh
+      - -c
+      - |
+        geth init --datadir=/data /config/genesis.json && \
+        exec geth \
+          --datadir=/data \
+          --http --http.addr=0.0.0.0 --http.port=9545 \
+          --http.api=web3,debug,eth,txpool,net,engine \
+          --ws --ws.addr=0.0.0.0 --ws.port=9546 \
+          --ws.api=web3,debug,eth,txpool,net,engine \
+          --authrpc.addr=0.0.0.0 --authrpc.port=8551 \
+          --authrpc.jwtsecret=/config/jwt.txt \
+          --authrpc.vhosts=* \
+          --rollup.disabletxpoolgossip=true \
+          --nodiscover --syncmode=full --maxpeers=0
+    ports:
+      - "9545:9545"
+      - "9546:9546"
+    volumes:
+      - ./data/op-geth:/data
+      - ./.devnet:/config
