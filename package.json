@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "prettier": "^3.4.2",
+    "prettier-plugin-solidity": "^1.4.1",
     "typescript": "5.4.5"
   }
 }
