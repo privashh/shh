@@ -1,10 +1,14 @@
 # shh L3 — local OP Stack devnet (single sequencer), settling to a local "Base" L1.
+#
+# Bring-up order: L1 (anvil) → contracts deployed by op-deployer (via `make generate`) →
+# op-geth (execution) → op-node (consensus/derivation).
 version: "3.8"
 
 name: shh-op-stack
 
 services:
-  # ── L1: a local Base stand-in (anvil). ──
+  # ── L1: a local Base stand-in (anvil). For a real deployment, point op-node at
+  #    Base Sepolia / mainnet instead. ──
   l1:
     image: ghcr.io/foundry-rs/foundry:latest
     container_name: shh-l1
@@ -50,4 +54,29 @@ services:
       - "9546:9546"
     volumes:
       - ./data/op-geth:/data
+      - ./.devnet:/config
+
+  # ── L2 consensus / derivation ──
+  op-node:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:latest
+    container_name: shh-op-node
+    depends_on:
+      - op-geth
+    entrypoint:
+      - sh
+      - -c
+      - |
+        exec op-node \
+          --l1=http://l1:8545 \
+          --l1.beacon.ignore=true \
+          --l1.rpckind=basic \
+          --l2=http://op-geth:8551 \
+          --l2.jwt-secret=/config/jwt.txt \
+          --rollup.config=/config/rollup.json \
+          --sequencer.enabled --sequencer.l1-confs=0 \
+          --p2p.disable \
+          --rpc.addr=0.0.0.0 --rpc.port=7545
+    ports:
+      - "7545:7545"
+    volumes:
       - ./.devnet:/config
