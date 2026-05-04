@@ -36,10 +36,13 @@ The cryptographic heart of the project, independent of the chain it runs on.
 
 ---
 
-## Phase 2 — Local OP Stack devnet (single sequencer)
+## Phase 2 — Local OP Stack devnet (single sequencer) ◐ scaffolded
 
-- [ ] `infra/op-stack` docker-compose: L1 + op-geth + op-node + op-batcher + op-proposer.
-- [ ] Genesis + rollup config generation via op-deployer.
+- [x] `infra/op-stack` docker-compose: L1 + op-geth + op-node + op-batcher + op-proposer.
+- [x] Genesis + rollup config generation via op-deployer (`generate.sh` + `generate.ps1`).
+- [x] `make generate / up / down / reset` (+ PowerShell on Windows).
+
+**Gate (deferred):** booting blocks is skipped for now; compose is validated.
 
 ---
 
