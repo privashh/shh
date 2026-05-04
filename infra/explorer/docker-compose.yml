@@ -1,0 +1,64 @@
+# shh block explorer (Blockscout) pointed at the L3 op-geth RPC.
+# Minimal stack: postgres + redis + backend + frontend. Tune for production.
+
+name: shh-explorer
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${DB_USER:-blockscout}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-blockscout}
+      POSTGRES_DB: ${DB_NAME:-blockscout}
+    volumes:
+      - explorer-db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-blockscout}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - explorer-redis:/data
+
+  backend:
+    image: ghcr.io/blockscout/blockscout:latest
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: sh -c "bin/blockscout eval \"Elixir.Explorer.ReleaseTasks.create_and_migrate()\" && bin/blockscout start"
+    environment:
+      ETHEREUM_JSONRPC_VARIANT: geth
+      ETHEREUM_JSONRPC_HTTP_URL: ${L2_RPC_HTTP:-http://host.docker.internal:9545}
+      ETHEREUM_JSONRPC_WS_URL: ${L2_RPC_WS:-ws://host.docker.internal:9546}
+      DATABASE_URL: postgresql://${DB_USER:-blockscout}:${DB_PASSWORD:-blockscout}@db:5432/${DB_NAME:-blockscout}
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-RMgI4C1HSkxsEjdhPmXfsklEKfb1S7knxkp+psqjLcdRPK5OBVz1=}
+      CHAIN_ID: ${L2_CHAIN_ID:-42069}
+      COIN: ${COIN:-ETH}
+      PORT: "4000"
+    ports:
+      - "4000:4000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  frontend:
+    image: ghcr.io/blockscout/frontend:latest
+    depends_on: [backend]
+    environment:
+      NEXT_PUBLIC_API_HOST: ${EXPLORER_HOST:-localhost}
+      NEXT_PUBLIC_API_PROTOCOL: http
+      NEXT_PUBLIC_API_PORT: "4000"
+      NEXT_PUBLIC_NETWORK_NAME: shh
+      NEXT_PUBLIC_NETWORK_ID: ${L2_CHAIN_ID:-42069}
+      NEXT_PUBLIC_NETWORK_CURRENCY_SYMBOL: ${COIN:-ETH}
+    ports:
+      - "3001:3000"
+
+volumes:
+  explorer-db:
+  explorer-redis:
