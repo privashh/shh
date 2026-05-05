@@ -1,0 +1,25 @@
+{
+  "name": "@shh/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "shh privacy wallet — backend skeleton (Next.js route handlers; frontend deferred)",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@shh/sdk": "workspace:*",
+    "ethers": "^6.13.4",
+    "next": "^16.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "5.4.5"
+  }
+}
