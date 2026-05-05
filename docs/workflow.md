@@ -60,9 +60,11 @@ The cryptographic heart of the project, independent of the chain it runs on.
 
 ---
 
-## Phase 5 — Explorer
+## Phase 5 — Explorer ◐ scaffolded
 
-- [ ] Blockscout stack pointed at op-geth.
+- [x] `infra/explorer/` Blockscout stack (db + redis + backend + frontend) pointed at
+      `op-geth` (compose validated).
+- [ ] Privacy-aware views: commitment/nullifier event indexing, pool TVL, ASP status.
 
 ---
 
