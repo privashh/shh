@@ -5,8 +5,17 @@ node_modules/
 # Build outputs
 dist/
 out/
+.next/
 artifacts/
 cache/
+typechain-types/
+coverage/
+coverage.json
+
+# Web app generated artifacts (copied from circuits at dev time)
+apps/web/public/circuits/*.wasm
+apps/web/public/circuits/*.zkey
+apps/web/public/vendor/
 
 # Circuits — compiled artifacts & trusted setup
 packages/circuits/build/
