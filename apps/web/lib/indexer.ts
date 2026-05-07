@@ -10,10 +10,12 @@ export interface PoolLeaf {
 export async function poolCommitments(): Promise<PoolLeaf[]> {
   const pool = privacyPool();
   const events = (await pool.queryFilter(pool.filters.Deposit(), 0, "latest")) as EventLog[];
-  return events.map((e) => ({
-    commitment: e.args.commitment as string,
-    leafIndex: Number(e.args.leafIndex),
-  }));
+  return events
+    .map((e) => ({
+      commitment: e.args.commitment as string,
+      leafIndex: Number(e.args.leafIndex),
+    }))
+    .sort((a, b) => a.leafIndex - b.leafIndex);
 }
 
 /** Shielded Pool note commitments + spent nullifiers (for client-side note scanning). */
@@ -30,11 +32,13 @@ export async function shieldedEvents() {
     "latest",
   )) as EventLog[];
   return {
-    commitments: commitments.map((e) => ({
-      commitment: e.args.commitment as string,
-      leafIndex: Number(e.args.leafIndex),
-      encryptedOutput: e.args.encryptedOutput as string,
-    })),
+    commitments: commitments
+      .map((e) => ({
+        commitment: e.args.commitment as string,
+        leafIndex: Number(e.args.leafIndex),
+        encryptedOutput: e.args.encryptedOutput as string,
+      }))
+      .sort((a, b) => a.leafIndex - b.leafIndex),
     nullifiers: nullifiers.map((e) => e.args.nullifier as string),
   };
 }
