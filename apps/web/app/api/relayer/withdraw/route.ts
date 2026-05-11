@@ -41,6 +41,7 @@ export async function POST(req: Request) {
       relayerAddress,
       body.fee,
       body.refund,
+      { value: body.refund },
     );
     const receipt = await tx.wait();
     return Response.json({
