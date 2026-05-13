@@ -46,10 +46,13 @@ The cryptographic heart of the project, independent of the chain it runs on.
 
 ---
 
-## Phase 3 — Two chain profiles
+## Phase 3 — Two chain profiles ◐ scaffolded
 
+- [x] Profile selector wired: `SHH_PROFILE=full-privacy|open-pool` in deploy + devnet env,
+      recorded in the deployment manifest and surfaced via `/api/config`.
 - [ ] Profile A — Full privacy chain (ShieldedPool predeploy).
-- [ ] Profile B — Open L3 + Privacy Pool + ASP.
+- [ ] Profile B — Open L3 + Privacy Pool + ASP (app-layer deploy works via `deploy:local`).
+- [ ] Per-profile genesis predeploys (needs the booted devnet from Phase 2).
 
 ---
 
