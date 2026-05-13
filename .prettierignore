@@ -1,4 +1,15 @@
 node_modules/
 dist/
 out/
+.next/
+build/
+artifacts/
+cache/
+coverage/
+typechain-types/
 pnpm-lock.yaml
+packages/contracts/contracts/verifiers/
+packages/contracts/deployments/
+packages/circuits/keys/
+packages/circuits/ptau/
+apps/web/public/
