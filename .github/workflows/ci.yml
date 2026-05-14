@@ -29,6 +29,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Cache Powers of Tau
+        uses: actions/cache@v4
+        with:
+          path: packages/circuits/ptau
+          key: ptau-pot16
+
       - name: Compile circuits + trusted setup (dev)
         run: pnpm circuits:compile && pnpm circuits:setup
 
@@ -43,3 +49,6 @@ jobs:
 
       - name: Test — contracts
         run: pnpm --filter @shh/contracts test
+
+      - name: Build — wallet backend
+        run: pnpm --filter @shh/web build
