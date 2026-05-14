@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install circom
+        run: |
+          curl -L https://github.com/iden3/circom/releases/download/v2.2.3/circom-linux-amd64 -o /usr/local/bin/circom
+          chmod +x /usr/local/bin/circom
+          circom --version
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Compile circuits + trusted setup (dev)
+        run: pnpm circuits:compile && pnpm circuits:setup
+
+      - name: Build SDK
+        run: pnpm --filter @shh/sdk build
+
+      - name: Test — SDK
+        run: pnpm --filter @shh/sdk test
+
+      - name: Test — circuits
+        run: pnpm --filter @shh/circuits test
+
+      - name: Test — contracts
+        run: pnpm --filter @shh/contracts test
