@@ -92,4 +92,9 @@ The cryptographic heart of the project, independent of the chain it runs on.
 ## Conventions
 
 - All code, comments, identifiers, and commits in **English**.
-- Field/hash scheme is defined once and must match across circuits, contracts, and SDK.
+- Every circuit change re-runs setup and re-exports its verifier; verifiers are
+  generated artifacts, never hand-edited.
+- Field/hash scheme is defined once in [privacy-design.md](./privacy-design.md) and
+  must match across circuits ⇄ contracts ⇄ SDK.
+- **CI** ([.github/workflows/ci.yml](../.github/workflows/ci.yml)) runs the full gate on every
+  push/PR: install circom → compile + trusted setup → sdk/circuits/contracts tests → web build.
