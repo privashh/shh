@@ -98,3 +98,5 @@ The cryptographic heart of the project, independent of the chain it runs on.
   must match across circuits ⇄ contracts ⇄ SDK.
 - **CI** ([.github/workflows/ci.yml](../.github/workflows/ci.yml)) runs the full gate on every
   push/PR: install circom → compile + trusted setup → sdk/circuits/contracts tests → web build.
+- **Security**: see [SECURITY.md](../SECURITY.md) and [threat-model.md](./threat-model.md). The
+  dev trusted setup is single-contributor and must not secure real funds.
