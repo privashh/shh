@@ -6,9 +6,14 @@
                           ┌───┴────┐
                           │  Base   │   L2 (OP Stack)
                           └───┬────┘
+            standard bridge   │   shielded bridge
                           ┌───┴────────────────────┐
                           │        shh  (L3)        │   OP Stack rollup, single sequencer
                           │  settles batches to Base │
+                          ├──────────────────────────┤
+   Profile A (full priv) │  ShieldedPool (UTXO)      │  Profile B (open + pool)
+                          │  every transfer = note    │  transparent EVM +
+                          │                           │  PrivacyPool (fixed denom + ASP)
                           └──────────────────────────┘
 ```
 
@@ -19,6 +24,8 @@
 | Proofs    | UTXO join-split, Privacy-Pool withdraw       | Circom + Groth16   | `packages/circuits`  |
 | Contracts | Pools, Merkle tree, bridges, verifiers       | Solidity (Hardhat) | `packages/contracts` |
 | Client    | Notes, Merkle, witness/proof gen             | TypeScript         | `packages/sdk`       |
+| Chain     | op-geth / op-node / op-batcher / op-proposer | Docker Compose     | `infra/op-stack`     |
+| Indexer   | Block explorer                               | Blockscout         | `infra/explorer`     |
 | App       | Deposit / transfer / withdraw UI             | Next.js            | `apps/web`           |
 
 ## Why an L3 on Base
@@ -32,8 +39,44 @@
 
 - **Profile A — Full privacy chain.** The `ShieldedPool` is the canonical value layer.
   Balances live as UTXO note commitments in a Poseidon Merkle tree; transfers are
-  join-split proofs.
+  join-split proofs. There are no transparent transfers in the default UX.
 - **Profile B — Open L3 + Privacy Pool.** A normal transparent EVM L3. Privacy is opt-in
-  via the fixed-denomination `PrivacyPool` with an Association Set membership proof.
+  via the fixed-denomination `PrivacyPool`. Withdrawals require an **Association Set**
+  membership proof, so an ASP (Association Set Provider) can scope which deposits may exit
+  — _unlockable_, i.e. compliance-compatible privacy.
 
-See workflow.md for the phased build plan.
+Both profiles reuse the same circuits, Merkle tree, and verifier infrastructure; the
+difference is which contract is the default value path and what the predeploys/genesis set.
+
+## Data flow — Profile B (Privacy Pool)
+
+```
+deposit(commitment)               withdraw(proof, root, assocRoot, nullifierHash, recipient)
+  user picks (nullifier, secret)    user proves:
+  commitment = H(nullifier,secret)    • commitment ∈ stateRoot     (it exists)
+  contract inserts into state tree    • commitment ∈ assocRoot      (it's approved)
+                                      • nullifierHash = H(nullifier) (no double spend)
+                                    without revealing which commitment.
+```
+
+## Data flow — Profile A (Shielded UTXO)
+
+```
+note = H(amount, pubKey, blinding),  pubKey = H(privKey)
+transaction proof (2-in / 2-out):
+  • each input note ∈ stateRoot
+  • nullifier = H(commitment, pathIndices, sign(privKey, …))   (no double spend)
+  • Σ inAmounts + publicAmount = Σ outAmounts                   (value conserved)
+  • extDataHash binds recipient / relayer / fee / encrypted outputs
+publicAmount > 0 ⇒ deposit, < 0 ⇒ withdraw, = 0 ⇒ private transfer.
+```
+
+## Trust & upgrade model
+
+- Groth16 requires a per-circuit trusted setup; mainnet uses a multi-party Powers-of-Tau
+  ceremony (Phase 8). Dev uses a single-contributor setup — **never** for production funds.
+- Contracts deploy behind a timelock-governed proxy with an emergency pause; verifiers and
+  Merkle parameters are immutable per deployment.
+
+See [privacy-design.md](./privacy-design.md) for exact hash/field definitions and circuit
+signal layouts, and [workflow.md](./workflow.md) for the phased build plan.
