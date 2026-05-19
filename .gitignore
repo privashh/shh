@@ -24,10 +24,19 @@ packages/circuits/keys/*.zkey
 packages/circuits/keys/*.wasm
 !packages/circuits/keys/.gitkeep
 
+# Local deployment artifacts (testnet/mainnet records are kept)
+packages/contracts/deployments/hardhat.json
+packages/contracts/deployments/localhost.json
+
 # Env / secrets
 .env
 .env.*
 !.env.example
+
+# OP Stack runtime state
+infra/op-stack/.devnet/
+infra/op-stack/data/
+infra/explorer/data/
 
 # Logs & OS
 *.log
