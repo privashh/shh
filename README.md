@@ -1,4 +1,14 @@
+<div align="center">
+
+<img src="banner.png" alt="shh" width="640" />
+
 # shh
+
+**A privacy L3 on Base, built on the OP Stack.**
+
+[𝕏 @privashh](https://x.com/privashh) · [shh.gg](https://shh.gg)
+
+</div>
 
 A **privacy L3 on Base**, built on the OP Stack. shh ships in two profiles that share one
 cryptographic core:
