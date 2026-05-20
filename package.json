@@ -1,8 +1,8 @@
 {
   "name": "shh",
   "private": true,
-  "version": "0.0.0",
-  "description": "shh — a privacy L3 on Base (OP Stack)",
+  "version": "0.1.0",
+  "description": "shh — a Base-based Privacy L3 on the OP Stack with shielded UTXO and compliant Privacy Pools",
   "packageManager": "pnpm@10.19.0",
   "engines": {
     "node": ">=20"
@@ -26,5 +26,10 @@
     "prettier": "^3.4.2",
     "prettier-plugin-solidity": "^1.4.1",
     "typescript": "5.4.5"
+  },
+  "pnpm": {
+    "overrides": {
+      "typescript": "5.4.5"
+    }
   }
 }
