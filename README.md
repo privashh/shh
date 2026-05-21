@@ -6,7 +6,7 @@
 
 **A privacy L3 on Base, built on the OP Stack.**
 
-[𝕏 @privashh](https://x.com/privashh) · [shh.gg](https://shh.gg)
+[𝕏 @privashhgg](https://x.com/privashhgg) · [shh.gg](https://shh.gg)
 
 </div>
 
