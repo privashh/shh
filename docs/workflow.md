@@ -17,9 +17,9 @@ can also be deployed to Base Sepolia / Base mainnet.
 - [x] Choose value models: shielded UTXO (full-privacy chain) + fixed-denomination
       Privacy Pool with Association Sets (compliant variant).
 - [x] Choose local orchestration: Docker Compose, single sequencer.
-- [x] Choose contract tooling: Hardhat + TypeScript.
+- [x] Choose contract tooling: Hardhat + TypeScript (matches the JS proof-gen workflow).
 
-**Gate:** decisions recorded in this doc and architecture.md.
+**Gate:** decisions recorded in this doc and [architecture.md](./architecture.md).
 
 ---
 
@@ -28,38 +28,67 @@ can also be deployed to Base Sepolia / Base mainnet.
 The cryptographic heart of the project, independent of the chain it runs on.
 
 - [x] pnpm monorepo (`packages/*`, `apps/*`) + shared TS config.
-- [x] `@shh/circuits` — Circom circuits + Groth16 trusted setup.
-- [x] `@shh/contracts` — Hardhat pools, Merkle tree, verifiers.
-- [x] `@shh/sdk` — note management, Merkle tree, witness + proof generation.
+- [x] `@shh/circuits` — real Circom circuits (compiled; Groth16 setup done):
+  - [x] `lib/` Poseidon Merkle proof + keypair helpers.
+  - [x] `pool/` fixed-denomination Privacy Pool withdraw (state + association membership).
+  - [x] `shielded/` UTXO join-split transaction (2-in / 2-out).
+  - [x] compile + Powers-of-Tau + Groth16 setup + Solidity verifier export scripts.
+- [x] `@shh/contracts` — Hardhat:
+  - [x] `MerkleTreeWithHistory` (Poseidon, on-chain incremental tree).
+  - [x] `PrivacyPool` (fixed denom, ASP-gated withdrawals).
+  - [x] `ShieldedPool` (UTXO commitments, join-split).
+  - [x] `ShieldedBridge` (L1/L2) bridging straight into the shielded set; OP portal interface.
+  - [x] generated Groth16 verifiers wired in.
+- [x] `@shh/sdk` — note management, Merkle tree, witness + proof generation (isomorphic;
+      browser-safe `.` entry + node-only `./node` proving entry).
 
-**Gate:** circuits compile + setup; sdk/circuits/contracts tests pass.
+**Gate:** ✅
+
+- `pnpm circuits:compile && pnpm circuits:setup` produces `.wasm` + `.zkey` + verifier `.sol`.
+- `pnpm circuits:test` (4/4): valid witness proves+verifies; tampered witness fails constraints.
+- `pnpm --filter @shh/sdk test` (9/9): Poseidon/Merkle/notes, value conservation, ZERO_VALUE.
+- `pnpm contracts:test` passes (10/10): deposit → prove → withdraw for both pools, double-spend
+  rejected, association-gating, **shielded-bridge deposit AND withdrawal**, front-running.
 
 ---
 
 ## Phase 2 — Local OP Stack devnet (single sequencer) ◐ scaffolded
 
-- [x] `infra/op-stack` docker-compose: L1 + op-geth + op-node + op-batcher + op-proposer.
-- [x] Genesis + rollup config generation via op-deployer (`generate.sh` + `generate.ps1`).
+- [x] `infra/op-stack/docker-compose.yml`: L1 (anvil fork of Base Sepolia), `op-geth`,
+      `op-node`, `op-batcher`, `op-proposer` (compose validated).
+- [x] Genesis + rollup config generation scripts via `op-deployer` (`scripts/generate.sh` + `generate.ps1`); DisputeGameFactory-based proposer.
 - [x] `make generate / up / down / reset` (+ PowerShell on Windows).
 
-**Gate (deferred):** booting blocks is skipped for now; compose is validated.
+**Gate (deferred):** actually booting blocks is intentionally skipped for now; `make generate
+&& docker compose up` is wired and the compose is validated. Booting/`cast block latest` is
+the remaining step.
 
 ---
 
 ## Phase 3 — Two chain profiles ◐ scaffolded
 
+Both profiles share the OP Stack base; they differ in the privacy model exposed.
+
 - [x] Profile selector wired: `SHH_PROFILE=full-privacy|open-pool` in deploy + devnet env,
       recorded in the deployment manifest and surfaced via `/api/config`.
-- [ ] Profile A — Full privacy chain (ShieldedPool predeploy).
-- [ ] Profile B — Open L3 + Privacy Pool + ASP (app-layer deploy works via `deploy:local`).
+- [ ] **Profile A — Full privacy chain**: `ShieldedPool` predeploy + default UX through notes.
+- [ ] **Profile B — Open L3 + Privacy Pool**: transparent L3 + `PrivacyPool` + ASP (app-layer
+      deploy works today via `deploy:local`).
 - [ ] Per-profile genesis predeploys (needs the booted devnet from Phase 2).
+
+**Gate:** each profile boots from a single config flag and passes its smoke test.
 
 ---
 
 ## Phase 4 — Bridges ◐ scaffolded
 
-- [x] ShieldedBridge bidirectional (deposit + withdrawal). Both unit-tested.
-- [ ] Wire to the live OP portal address from the booted devnet.
+- [x] `ShieldedBridge` **bidirectional**: deposit (Base → L3 note, via OP portal aliasing) and
+      withdrawal (L3 note → Base, via the canonical L2StandardBridge). Both unit-tested.
+- [x] Role-based deploy script `deployShieldedBridge.ts` (`BRIDGE_SIDE=l1|l2`, L2 std-bridge predeploy).
+- [ ] Wire to the live OP portal address from the booted Phase 2 devnet.
+
+**Gate:** end-to-end bridge test on a Base Sepolia fork: deposit appears as a
+spendable shielded note on L3; withdrawal returns funds on Base.
 
 ---
 
@@ -69,23 +98,41 @@ The cryptographic heart of the project, independent of the chain it runs on.
       `op-geth` (compose validated).
 - [ ] Privacy-aware views: commitment/nullifier event indexing, pool TVL, ASP status.
 
+**Gate:** explorer shows L3 blocks/txs and decodes pool events (needs booted devnet).
+
 ---
 
-## Phase 6 — SDK + app
+## Phase 6 — SDK + app ◐ backend done, frontend deferred
 
-- [ ] `apps/web` deposit / transfer / withdraw.
+- [x] `apps/web` **backend** (Next.js route handlers): config, pool leaves, association path,
+      shielded events, relayer withdraw. Verified end to end against a local node.
+- [x] Relayer: `POST /api/relayer/withdraw` (gasless Privacy Pool withdrawals).
+- [x] Turn-key local stack: `pnpm dev` (chain + deploy + artifacts + backend).
+- [x] `@shh/sdk` isomorphic (poseidon-lite + Web Crypto), split into browser-safe `.` and
+      node-only `./node` — browser proving is ready (no node builtins on the `.` entry).
+- [ ] Frontend UI (deferred): wallet connect + deposit/transfer/withdraw, client-side
+      Web-Worker proving (`snarkjs.min.js` + circuit wasm/zkey already staged in `public/`).
+
+**Gate:** a user can deposit, privately transfer, and withdraw from the UI on devnet.
 
 ---
 
 ## Phase 7 — Testnet
 
-- [ ] Deploy to Base Sepolia.
+- [ ] Deploy bridge + verifiers + pools to Base Sepolia.
+- [ ] Public devnet sequencer; explorer hosted.
+
+**Gate:** external wallet completes the full flow on Base Sepolia.
 
 ---
 
 ## Phase 8 — Hardening & mainnet
 
-- [ ] Trusted-setup ceremony, audit, mainnet deploy.
+- [ ] Trusted-setup ceremony (multi-party Powers of Tau contribution).
+- [ ] External audit of circuits + contracts; fuzz + invariant tests.
+- [ ] Mainnet deploy with timelock-governed upgradeability and emergency pause.
+
+**Gate:** audit findings resolved; ceremony transcript published; mainnet live.
 
 ---
 
