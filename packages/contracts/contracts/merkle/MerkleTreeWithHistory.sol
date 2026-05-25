@@ -12,7 +12,7 @@ contract MerkleTreeWithHistory {
         21888242871839275222246405745257275088548364400416034343698204186575808495617;
     uint256 public constant ZERO_VALUE =
         13602612579684615825605231132845818358075790636291508357134507789605889596141;
-    uint32 public constant ROOT_HISTORY_SIZE = 64;
+    uint32 public constant ROOT_HISTORY_SIZE = 30;
 
     IHasher public immutable hasher;
     uint32 public immutable levels;
