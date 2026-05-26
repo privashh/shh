@@ -11,7 +11,7 @@ import {ITransactionVerifier} from "../interfaces/IVerifiers.sol";
 /// creates output notes, and settles the net public amount with the outside world:
 /// deposit (extAmount > 0), withdrawal (extAmount < 0), or private transfer (= 0).
 contract ShieldedPool is MerkleTreeWithHistory {
-    uint256 public constant MAX_EXT_AMOUNT = 2 ** 248;
+    uint256 public constant MAX_EXT_AMOUNT = 2 ** 240;
     uint256 public constant MAX_FEE = 2 ** 248;
 
     ITransactionVerifier public immutable verifier;
