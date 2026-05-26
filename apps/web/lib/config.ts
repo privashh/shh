@@ -57,7 +57,7 @@ export function getConfig(): ShhConfig {
     },
     relayer: {
       address: process.env.RELAYER_ADDRESS,
-      feeBps: Number(process.env.RELAYER_FEE_BPS || 50),
+      feeBps: Number(process.env.RELAYER_FEE_BPS || 30),
     },
   };
 }
