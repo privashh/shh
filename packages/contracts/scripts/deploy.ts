@@ -7,7 +7,7 @@ import path from "node:path";
 // The Base-side L1ShieldedBridge and the L2 counterpart are wired in Phase 4 once the
 // OP Stack portal address is known. See docs/workflow.md.
 const LEVELS = 20;
-const DENOMINATION = ethers.parseEther("0.1");
+const DENOMINATION = ethers.parseEther("1");
 
 async function main() {
   const [deployer] = await ethers.getSigners();
