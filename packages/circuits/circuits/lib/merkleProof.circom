@@ -16,7 +16,7 @@ template HashLeftRight() {
     hash <== hasher.out;
 }
 
-// Recomputes the Merkle root from a leaf and its inclusion path.
+// Verifies a Merkle inclusion proof and outputs the implied root.
 // `pathIndices` is a single field element whose i-th bit selects whether the
 // running hash is the left (0) or right (1) child at level i.
 template MerkleProof(levels) {
