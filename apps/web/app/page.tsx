@@ -3,7 +3,7 @@ export default function Home() {
   return (
     <main style={{ fontFamily: "ui-monospace, monospace", padding: 32, lineHeight: 1.6 }}>
       <h1>shh wallet</h1>
-      <p>The backend is live. The frontend is deferred for now.</p>
+      <p>Backend is live. The frontend is intentionally deferred.</p>
       <h2>API</h2>
       <ul>
         <li>
