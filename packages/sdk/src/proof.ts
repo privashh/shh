@@ -4,7 +4,7 @@ export interface SolidityProof {
   c: [bigint, bigint];
 }
 
-/** Reorder a snarkjs proof into the (a, b, c) shape the Solidity verifier expects. */
+/** Reshape a snarkjs proof into the (a, b, c) shape the Solidity verifier expects. */
 export function formatProof(proof: {
   pi_a: string[];
   pi_b: string[][];
