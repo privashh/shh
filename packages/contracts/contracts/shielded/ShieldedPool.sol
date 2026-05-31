@@ -83,12 +83,15 @@ contract ShieldedPool is MerkleTreeWithHistory {
             emit NewNullifier(nullifier);
         }
 
-        _settle(extData);
-
         uint32 idx0 = _insert(uint256(args.outputCommitments[0]));
         uint32 idx1 = _insert(uint256(args.outputCommitments[1]));
         emit NewCommitment(args.outputCommitments[0], idx0, extData.encryptedOutput1);
         emit NewCommitment(args.outputCommitments[1], idx1, extData.encryptedOutput2);
+
+        // Interactions last (checks-effects-interactions): nullifiers, commitments, and the
+        // root are all final before any external transfer, so a malicious recipient/relayer
+        // cannot reenter while the tree is mid-update.
+        _settle(extData);
     }
 
     function _settle(ExtData calldata extData) internal {
