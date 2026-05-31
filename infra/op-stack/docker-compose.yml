@@ -1,34 +1,49 @@
-# shh — local single-sequencer OP Stack L3 (Phase 2 template).
-# Boot requires ./configs/{genesis.json,rollup.json,jwt.txt}, produced by ./scripts/generate.sh.
-# Until then this file documents the intended topology; see README.md.
+# shh — single-sequencer OP Stack L3 settling to Base (Base Sepolia by default).
+#
+# Boot requires:
+#   * ./configs/{genesis.json,rollup.json,jwt.txt} from ./scripts/generate.sh,
+#   * funded GS_* keys on the L1 (admin deploys the OP contracts; batcher + proposer post to L1),
+#   * an L1 execution RPC (L1_RPC) AND an L1 beacon/consensus RPC (L1_BEACON).
+#
+# Why a real L1 (not a local anvil fork): op-node requires a beacon endpoint once Ecotone is
+# active — which it is from genesis on op-deployer chains — even when batches use calldata.
+# anvil exposes no beacon API, so the L1 must be a real chain (Base Sepolia) that has one.
 
 name: shh-devnet
 
 services:
-  # Settlement layer: a fork of Base Sepolia. Swap for the live RPC to target real Base.
-  l1:
-    image: ghcr.io/foundry-rs/foundry:latest
-    entrypoint:
-      - anvil
-      - --host=0.0.0.0
-      - --fork-url=${L1_RPC:-https://sepolia.base.org}
-      - --chain-id=${L1_CHAIN_ID:-84532}
-    ports:
-      - "8545:8545"
+  # One-shot: initialise op-geth's datadir from the generated L3 genesis before first boot.
+  # Without this, op-geth starts on the wrong genesis and op-node derivation fails.
+  op-geth-init:
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-geth:latest
+    command:
+      - init
+      - --state.scheme=hash
+      - --datadir=/data
+      - /config/genesis.json
+    volumes:
+      - ./configs:/config:ro
+      - geth-data:/data
 
   op-geth:
     image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-geth:latest
-    depends_on: [l1]
+    depends_on:
+      op-geth-init:
+        condition: service_completed_successfully
     command:
       - --datadir=/data
+      - --state.scheme=hash
       - --http
       - --http.addr=0.0.0.0
       - --http.port=9545
       - --http.api=web3,debug,eth,net,engine
+      - --http.vhosts=* # accept the op-geth service hostname inside the compose network
       - --authrpc.addr=0.0.0.0
       - --authrpc.port=8551
+      - --authrpc.vhosts=* # op-node reaches the engine API by service name, not localhost
       - --authrpc.jwtsecret=/config/jwt.txt
       - --rollup.sequencerhttp=http://op-node:8547
+      - --rollup.disabletxpoolgossip=true
     volumes:
       - ./configs:/config:ro
       - geth-data:/data
@@ -40,12 +55,13 @@ services:
     depends_on: [op-geth]
     command:
       - op-node
-      - --l1=http://l1:8545
+      - --l1=${L1_RPC} # Base Sepolia EXECUTION RPC
+      - --l1.beacon=${L1_BEACON} # Base Sepolia BEACON RPC — required even with calldata DA
       - --l2=http://op-geth:8551
       - --l2.jwt-secret=/config/jwt.txt
       - --rollup.config=/config/rollup.json
       - --sequencer.enabled
-      - --sequencer.l1-confs=0
+      - --sequencer.l1-confs=4 # tolerate shallow L1 reorgs on a real settlement layer
       - --p2p.disable
       - --rpc.addr=0.0.0.0
       - --rpc.port=8547
@@ -53,17 +69,21 @@ services:
       - OP_NODE_P2P_SEQUENCER_KEY=${GS_SEQUENCER_PRIVATE_KEY}
     volumes:
       - ./configs:/config:ro
+    ports:
+      - "8547:8547"
 
   op-batcher:
     image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:latest
     depends_on: [op-node]
     command:
       - op-batcher
-      - --l1-eth-rpc=http://l1:8545
+      - --l1-eth-rpc=${L1_RPC}
       - --l2-eth-rpc=http://op-geth:9545
       - --rollup-rpc=http://op-node:8547
       - --private-key=${GS_BATCHER_PRIVATE_KEY}
+      - --data-availability-type=calldata # simplest/reliable on a testnet; switch to blobs to cut L1 cost
       - --max-channel-duration=1
+      - --poll-interval=12s
 
   op-proposer:
     image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:latest
@@ -72,12 +92,12 @@ services:
     # DGF_ADDRESS is written into .env by scripts/generate from the op-deployer output.
     command:
       - op-proposer
-      - --l1-eth-rpc=http://l1:8545
+      - --l1-eth-rpc=${L1_RPC}
       - --rollup-rpc=http://op-node:8547
       - --private-key=${GS_PROPOSER_PRIVATE_KEY}
       - --game-factory-address=${DGF_ADDRESS}
       - --game-type=${OP_GAME_TYPE:-1}
-      - --proposal-interval=12s
+      - --proposal-interval=3600s # each proposal posts an L1 tx + bond; keep cadence sane on a real L1
       - --poll-interval=12s
 
 volumes:
