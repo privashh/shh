@@ -12,6 +12,7 @@ contract AssociationSetProvider is IAssociationSetProvider {
     mapping(uint256 => bool) public published;
 
     event RootPublished(uint256 indexed root, string dataURI);
+    event RootRevoked(uint256 indexed root);
     event AspTransferred(address indexed previous, address indexed next);
 
     error NotAsp();
@@ -32,6 +33,14 @@ contract AssociationSetProvider is IAssociationSetProvider {
         published[root] = true;
         currentRoot = root;
         emit RootPublished(root, dataURI);
+    }
+
+    /// @notice Invalidate a previously published root — e.g. a deposit included in it was
+    /// later found non-compliant. Withdrawals proving membership in a revoked root stop
+    /// verifying immediately, restoring the "unlockable" gate for the whole set.
+    function revokeRoot(uint256 root) external onlyAsp {
+        published[root] = false;
+        emit RootRevoked(root);
     }
 
     function isValidAssociationRoot(uint256 root) external view returns (bool) {

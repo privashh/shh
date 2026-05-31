@@ -220,4 +220,48 @@ describe("PrivacyPool", () => {
       ),
     ).to.be.revertedWithCustomError(pool, "InvalidProof");
   });
+
+  it("blocks withdrawal after the ASP revokes the association root", async () => {
+    const { recipient, relayer, asp, aspContract, pool } = await deployPool();
+    const note = new PoolNote();
+    const commitment = await note.commitment();
+    await (await pool.deposit(toFixedHex(commitment), { value: DENOM })).wait();
+
+    const stateTree = await MerkleTree.create([commitment]);
+    const associationTree = await MerkleTree.create([commitment]);
+    await (
+      await aspContract.connect(asp).publishRoot(associationTree.root(), "ipfs://set-1")
+    ).wait();
+
+    // The deposit is later found non-compliant; the ASP revokes the root it appeared in.
+    await (await aspContract.connect(asp).revokeRoot(associationTree.root())).wait();
+    expect(await aspContract.isValidAssociationRoot(associationTree.root())).to.equal(false);
+
+    const args = await generatePoolWithdraw({
+      note,
+      stateTree,
+      associationTree,
+      recipient: BigInt(recipient.address),
+      relayer: BigInt(relayer.address),
+      fee: 0n,
+      refund: 0n,
+      wasmPath: POOL_WASM,
+      zkeyPath: POOL_ZKEY,
+    });
+
+    await expect(
+      pool.withdraw(
+        args.proof.a,
+        args.proof.b,
+        args.proof.c,
+        toFixedHex(args.stateRoot),
+        toFixedHex(args.associationRoot),
+        toFixedHex(args.nullifierHash),
+        recipient.address,
+        relayer.address,
+        0n,
+        0n,
+      ),
+    ).to.be.revertedWithCustomError(pool, "InvalidAssociationRoot");
+  });
 });
