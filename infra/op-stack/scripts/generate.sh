@@ -11,7 +11,7 @@ cd "$(dirname "$0")/.."
 
 CONFIGS=./configs
 WORKDIR=./.deployer
-DEPLOYER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-deployer:latest
+DEPLOYER_IMAGE=us-docker.pkg.dev/oplabs-tools-artifacts/images/op-deployer:${OP_DEPLOYER_TAG:-v0.6.0}
 mkdir -p "$CONFIGS" "$WORKDIR"
 
 run_deployer() {

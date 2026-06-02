@@ -15,7 +15,7 @@ services:
   # One-shot: initialise op-geth's datadir from the generated L3 genesis before first boot.
   # Without this, op-geth starts on the wrong genesis and op-node derivation fails.
   op-geth-init:
-    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-geth:latest
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-geth:${OP_GETH_TAG:-v1.101702.2}
     command:
       - init
       - --state.scheme=hash
@@ -26,7 +26,7 @@ services:
       - geth-data:/data
 
   op-geth:
-    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-geth:latest
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-geth:${OP_GETH_TAG:-v1.101702.2}
     depends_on:
       op-geth-init:
         condition: service_completed_successfully
@@ -51,7 +51,7 @@ services:
       - "9545:9545"
 
   op-node:
-    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:latest
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:${OP_NODE_TAG:-v1.19.0}
     depends_on: [op-geth]
     command:
       - op-node
@@ -73,7 +73,7 @@ services:
       - "8547:8547"
 
   op-batcher:
-    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:latest
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:${OP_BATCHER_TAG:-v1.16.9}
     depends_on: [op-node]
     command:
       - op-batcher
@@ -86,7 +86,7 @@ services:
       - --poll-interval=12s
 
   op-proposer:
-    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:latest
+    image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:${OP_PROPOSER_TAG:-v1.16.3}
     depends_on: [op-node]
     # Modern OP Stack uses fault proofs: the proposer posts to the DisputeGameFactory.
     # DGF_ADDRESS is written into .env by scripts/generate from the op-deployer output.
