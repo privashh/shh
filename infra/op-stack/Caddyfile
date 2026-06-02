@@ -20,12 +20,12 @@
 	reverse_proxy op-geth:9545
 }
 
-# Public TLS front for the Blockscout explorer (explorer.shh.gg). Backend (REST API + Phoenix
-# websocket) and the React frontend are one origin here: API/socket paths go to the backend,
-# everything else to the frontend. Both run in the shh-explorer compose on this same network.
+# explorer.shh.gg — serves the Blockscout backend's REST API + Phoenix socket only. The public UI
+# is the custom zine explorer at shh.gg/explorer, so any non-API request here redirects there.
 explorer.shh.gg {
 	encode gzip
 	@backend path /api/* /socket/* /sitemap.xml /auth/* /metrics /public-metrics/*
 	reverse_proxy @backend backend:4000
-	reverse_proxy frontend:3000
+	@notapi not path /api/* /socket/* /sitemap.xml /auth/* /metrics /public-metrics/*
+	redir @notapi https://shh.gg/explorer 302
 }
