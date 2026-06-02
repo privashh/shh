@@ -24,7 +24,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ commitm
       root: tree.root().toString(),
       index,
       pathElements: proof.pathElements.map(String),
-      pathIndices: proof.pathIndices.toString(),
+      pathIndices: proof.pathIndices.map(String),
     });
   } catch (e) {
     return Response.json({ error: (e as Error).message }, { status: 503 });
