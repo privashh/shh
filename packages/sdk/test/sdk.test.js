@@ -14,7 +14,7 @@ const {
   Utxo,
   buildTransactionInput,
   hashExtData,
-} = require("@shh/sdk");
+} = require("@privashh/sdk");
 
 test("ZERO_VALUE matches the on-chain literal", () => {
   assert.equal(

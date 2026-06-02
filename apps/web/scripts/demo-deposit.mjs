@@ -3,7 +3,7 @@
 //   node apps/web/scripts/demo-deposit.mjs
 import { readFileSync } from "node:fs";
 import { ethers } from "ethers";
-import { PoolNote, toFixedHex } from "@shh/sdk";
+import { PoolNote, toFixedHex } from "@privashh/sdk";
 
 const dep = JSON.parse(
   readFileSync(new URL("../../../packages/contracts/deployments/localhost.json", import.meta.url))

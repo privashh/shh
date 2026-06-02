@@ -58,7 +58,7 @@ curl http://localhost:3000/api/pool/leaves      # see it indexed
 Run the full verification gate directly:
 
 ```bash
-pnpm --filter @shh/sdk test       # 9/9  notes, Merkle, value conservation
+pnpm --filter @privashh/sdk test       # 9/9  notes, Merkle, value conservation
 pnpm --filter @shh/circuits test  # 4/4  valid witness proves+verifies; tampered fails
 pnpm contracts:test               # 10/10 deposit→prove→withdraw, double-spend, ASP gating,
                                   #       bidirectional shielded bridge, front-running

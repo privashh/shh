@@ -1,5 +1,5 @@
 // Node-only entry point: Groth16 proving via snarkjs (pulls node builtins + wasm). Browser
-// code should import from "@shh/sdk" and prove in a Web Worker instead.
+// code should import from "@privashh/sdk" and prove in a Web Worker instead.
 import { groth16 } from "snarkjs";
 import { formatProof, type SolidityProof } from "./proof";
 import { buildPoolWithdrawInput, type PoolWithdrawInputParams } from "./pool";

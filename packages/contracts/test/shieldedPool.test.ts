@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { Keypair, MerkleTree, Utxo } from "@shh/sdk";
-import { generateTransaction } from "@shh/sdk/node";
+import { Keypair, MerkleTree, Utxo } from "@privashh/sdk";
+import { generateTransaction } from "@privashh/sdk/node";
 import { deployPoseidonHasher } from "./helpers/deploy";
 import { TX_WASM, TX_ZKEY } from "./helpers/artifacts";
 import { toExtDataArg, toProofArgs } from "./helpers/format";

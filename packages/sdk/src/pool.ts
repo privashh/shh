@@ -40,7 +40,7 @@ export interface PoolWithdrawInput {
 
 /**
  * Build the circuit witness input for a Privacy Pool withdrawal (browser-safe — no proving).
- * Feed `input` to a Groth16 prover (`@shh/sdk/node` in Node, or a snarkjs Web Worker in the
+ * Feed `input` to a Groth16 prover (`@privashh/sdk/node` in Node, or a snarkjs Web Worker in the
  * browser).
  */
 export async function buildPoolWithdrawInput(

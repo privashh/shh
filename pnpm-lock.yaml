@@ -23,7 +23,7 @@ importers:
 
   apps/web:
     dependencies:
-      '@shh/sdk':
+      '@privashh/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
       ethers:
@@ -73,7 +73,7 @@ importers:
       '@nomicfoundation/hardhat-toolbox':
         specifier: ^5.0.0
         version: 5.0.0(984b61a9807a7819f7e8607b6c59f4f5)
-      '@shh/sdk':
+      '@privashh/sdk':
         specifier: workspace:*
         version: link:../sdk
       '@swc/core':

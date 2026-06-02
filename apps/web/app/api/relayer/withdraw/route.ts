@@ -1,5 +1,5 @@
 import { isAddress } from "ethers";
-import { FIELD_SIZE } from "@shh/sdk";
+import { FIELD_SIZE } from "@privashh/sdk";
 import { privacyPool, relayerSigner } from "@/lib/chain";
 import { getConfig } from "@/lib/config";
 

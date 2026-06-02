@@ -1,4 +1,4 @@
-import { LEVELS, MerkleTree } from "@shh/sdk";
+import { LEVELS, MerkleTree } from "@privashh/sdk";
 import { poolCommitments } from "@/lib/indexer";
 
 export const runtime = "nodejs";

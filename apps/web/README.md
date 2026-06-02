@@ -30,5 +30,5 @@ pnpm --filter @shh/web dev      # http://localhost:3000
 - Wallet connect (Base / shh L3), excluding USB hardware wallets per project policy.
 - Privacy Pool + Shielded UTXO flows.
 - Client-side Groth16 proving in a Web Worker (`snarkjs` + circuit wasm/zkey served from
-  `/public/circuits`), using `@shh/sdk` for notes / Merkle / witness input.
+  `/public/circuits`), using `@privashh/sdk` for notes / Merkle / witness input.
 - Design per the `frontend-design` skill — starts from the project's feeling, not convention.

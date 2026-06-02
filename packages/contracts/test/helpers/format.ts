@@ -1,5 +1,5 @@
-import { toFixedHex, type ExtData } from "@shh/sdk";
-import type { TransactionResult } from "@shh/sdk/node";
+import { toFixedHex, type ExtData } from "@privashh/sdk";
+import type { TransactionResult } from "@privashh/sdk/node";
 
 /// Shape a TransactionResult into the ShieldedPool.Proof struct for ethers.
 export function toProofArgs(txn: TransactionResult) {

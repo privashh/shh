@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { MerkleTree, PoolNote, toFixedHex } from "@shh/sdk";
-import { generatePoolWithdraw } from "@shh/sdk/node";
+import { MerkleTree, PoolNote, toFixedHex } from "@privashh/sdk";
+import { generatePoolWithdraw } from "@privashh/sdk/node";
 import { deployPoseidonHasher } from "./helpers/deploy";
 import { POOL_WASM, POOL_ZKEY } from "./helpers/artifacts";
 

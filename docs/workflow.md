@@ -39,14 +39,14 @@ The cryptographic heart of the project, independent of the chain it runs on.
   - [x] `ShieldedPool` (UTXO commitments, join-split).
   - [x] `ShieldedBridge` (L1/L2) bridging straight into the shielded set; OP portal interface.
   - [x] generated Groth16 verifiers wired in.
-- [x] `@shh/sdk` — note management, Merkle tree, witness + proof generation (isomorphic;
+- [x] `@privashh/sdk` — note management, Merkle tree, witness + proof generation (isomorphic;
       browser-safe `.` entry + node-only `./node` proving entry).
 
 **Gate:** ✅
 
 - `pnpm circuits:compile && pnpm circuits:setup` produces `.wasm` + `.zkey` + verifier `.sol`.
 - `pnpm circuits:test` (4/4): valid witness proves+verifies; tampered witness fails constraints.
-- `pnpm --filter @shh/sdk test` (9/9): Poseidon/Merkle/notes, value conservation, ZERO_VALUE.
+- `pnpm --filter @privashh/sdk test` (9/9): Poseidon/Merkle/notes, value conservation, ZERO_VALUE.
 - `pnpm contracts:test` passes (10/10): deposit → prove → withdraw for both pools, double-spend
   rejected, association-gating, **shielded-bridge deposit AND withdrawal**, front-running.
 
@@ -111,7 +111,7 @@ spendable shielded note on L3; withdrawal returns funds on Base.
       shielded events, relayer withdraw. Verified end to end against a local node.
 - [x] Relayer: `POST /api/relayer/withdraw` (gasless Privacy Pool withdrawals).
 - [x] Turn-key local stack: `pnpm dev` (chain + deploy + artifacts + backend).
-- [x] `@shh/sdk` isomorphic (poseidon-lite + Web Crypto), split into browser-safe `.` and
+- [x] `@privashh/sdk` isomorphic (poseidon-lite + Web Crypto), split into browser-safe `.` and
       node-only `./node` — browser proving is ready (no node builtins on the `.` entry).
 - [ ] Frontend UI (deferred): wallet connect + deposit/transfer/withdraw, client-side
       Web-Worker proving (`snarkjs.min.js` + circuit wasm/zkey already staged in `public/`).

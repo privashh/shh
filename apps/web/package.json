@@ -10,7 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@shh/sdk": "workspace:*",
+    "@privashh/sdk": "workspace:*",
     "ethers": "^6.13.4",
     "next": "^16.0.0",
     "react": "^19.0.0",
