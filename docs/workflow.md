@@ -54,15 +54,15 @@ The cryptographic heart of the project, independent of the chain it runs on.
 
 ## Phase 2 — OP Stack L3 settling to Base (single sequencer) ◐ boot wired
 
-- [x] `infra/op-stack/docker-compose.yml`: `op-geth-init` (genesis init), `op-geth`, `op-node`,
-      `op-batcher` (calldata DA), `op-proposer` (DisputeGameFactory). L1 = **real Base Sepolia**
-      (execution `L1_RPC` + beacon `L1_BEACON`) — anvil can't serve as L1 because op-node
-      requires a beacon once Ecotone is active.
+- [x] `infra/op-stack/docker-compose.yml`: `op-geth-init` (genesis init), `op-geth`, `op-node`
+      (no-beacon: `--l1.beacon.ignore` + `slot-duration-override`), `op-batcher` (calldata DA),
+      `op-proposer` (DisputeGameFactory). L1 = **real Base Sepolia**; Base is an L2 with no
+      beacon/blob API, so op-node runs without a beacon and batches go as calldata.
 - [x] Genesis + rollup config generation via `op-deployer` (`scripts/generate.sh` + `generate.ps1`).
 - [x] `make generate / up / down / reset` (+ PowerShell on Windows).
 
 **Gate (remaining = operator inputs, not code):** the boot path is fully wired and the compose
-validates. First boot needs funded `GS_*` keys on Base Sepolia, an execution + beacon RPC, and
+validates. First boot needs funded `GS_*` keys on Base Sepolia, a Base Sepolia execution RPC, and
 the `DGF_ADDRESS` copied from `generate` output. With those, `make generate && docker compose
 up` produces L3 blocks (`cast block latest`).
 

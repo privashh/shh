@@ -56,7 +56,12 @@ services:
     command:
       - op-node
       - --l1=${L1_RPC} # Base Sepolia EXECUTION RPC
-      - --l1.beacon=${L1_BEACON} # Base Sepolia BEACON RPC — required even with calldata DA
+      # Base is an L2 and exposes no beacon/blob API. Run without one: point --l1.beacon at the
+      # L1 RPC as a placeholder, ignore its (failing) healthcheck, and override the slot duration
+      # so op-node skips the beacon spec fetch. Safe because batches use calldata (no blobs).
+      - --l1.beacon=${L1_RPC}
+      - --l1.beacon.ignore=true
+      - --l1.beacon.slot-duration-override=${L1_SLOT_SECONDS:-2}
       - --l2=http://op-geth:8551
       - --l2.jwt-secret=/config/jwt.txt
       - --rollup.config=/config/rollup.json
