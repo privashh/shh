@@ -7,7 +7,8 @@
     "build": "hardhat compile",
     "test": "hardhat test",
     "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
-    "deploy:baseSepolia": "hardhat run scripts/deploy.ts --network baseSepolia"
+    "deploy:baseSepolia": "hardhat run scripts/deploy.ts --network baseSepolia",
+    "deploy:shh": "hardhat run scripts/deploy.ts --network shh"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
