@@ -92,12 +92,12 @@ shh runs as a public OP Stack L3 settling to **Base Sepolia**.
 
 | Contract | Address |
 | --- | --- |
-| PrivacyPool | `0x611Eb371557F7db14b843be44C086eB0aF6a9ebf` |
-| ShieldedPool | `0x4d306a129C5aA56Eb3F164581944A7186c8630Fb` |
-| AssociationSetProvider | `0x8C984B0Ae4783dc333D5A2A2D15108b488DDa2B5` |
-| PoolWithdrawVerifier | `0x5ec1Ba4901C11Cd6096A262c8934ab3f1F044FBc` |
-| Transaction2x2Verifier | `0xDD552646af0065C92C65041b99AaE2aef2261Fb5` |
-| Poseidon hasher | `0xCB8f37dA7b28a98f19F70285b76603Fac8cEacaD` |
+| PrivacyPool | `0x06f7F1539030D116AecCC7a32eF35D71b572dc3c` |
+| ShieldedPool | `0xFf0186cb30cF970F1911760e2fc2b37ED5114520` |
+| AssociationSetProvider | `0x37C5550c8baF1015f0a469b7C4d6D63065965aeF` |
+| PoolWithdrawVerifier | `0xc3A5f03b0b1BeD88A50BadAf0C83b9c04f5ede56` |
+| Transaction2x2Verifier | `0xc26C4e92f2c48dC9dC45e02e81092c15f3caC25e` |
+| Poseidon hasher | `0x17071fFB640DB06aE3568050a9E0217c51899e64` |
 
 An ASP publisher keeps the association-set root current on-chain, so deposits become
 withdrawable. The client SDK is published as
