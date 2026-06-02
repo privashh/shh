@@ -42,7 +42,9 @@ services:
       - --authrpc.port=8551
       - --authrpc.vhosts=* # op-node reaches the engine API by service name, not localhost
       - --authrpc.jwtsecret=/config/jwt.txt
-      - --rollup.sequencerhttp=http://op-node:8547
+      # No --rollup.sequencerhttp: this op-geth IS the sequencer, so it accepts user txs into
+      # its own mempool. Pointing it at op-node would forward eth_sendRawTransaction to a
+      # non-EL endpoint ("method does not exist"). Replicas (not this stack) set it instead.
       - --rollup.disabletxpoolgossip=true
       # Single sequencer, no peers: full sync executes payloads locally instead of waiting on
       # snap-sync peers (which never arrive), so block production isn't stuck "node is syncing".
