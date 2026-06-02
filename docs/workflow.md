@@ -52,7 +52,7 @@ The cryptographic heart of the project, independent of the chain it runs on.
 
 ---
 
-## Phase 2 — OP Stack L3 settling to Base (single sequencer) ◐ boot wired
+## Phase 2 — OP Stack L3 settling to Base (single sequencer) ✅ live
 
 - [x] `infra/op-stack/docker-compose.yml`: `op-geth-init` (genesis init), `op-geth`, `op-node`
       (no-beacon: `--l1.beacon.ignore` + `slot-duration-override`), `op-batcher` (calldata DA),
@@ -61,22 +61,22 @@ The cryptographic heart of the project, independent of the chain it runs on.
 - [x] Genesis + rollup config generation via `op-deployer` (`scripts/generate.sh` + `generate.ps1`).
 - [x] `make generate / up / down / reset` (+ PowerShell on Windows).
 
-**Gate (remaining = operator inputs, not code):** the boot path is fully wired and the compose
-validates. First boot needs funded `GS_*` keys on Base Sepolia, a Base Sepolia execution RPC, and
-the `DGF_ADDRESS` copied from `generate` output. With those, `make generate && docker compose
-up` produces L3 blocks (`cast block latest`).
+**Gate:** ✅ **live** — chain id **55666** boots from `generate.sh` + `docker compose up`,
+produces blocks, and settles to Base Sepolia (batches + output roots posted; safe/finalized
+advance). A locked-down public RPC is served at `https://rpc.shh.gg` (Caddy TLS; op-geth's
+privileged namespaces kept off the public HTTP, batcher on an internal WS).
 
 ---
 
-## Phase 3 — Two chain profiles ◐ scaffolded
+## Phase 3 — Two chain profiles ◐ open-pool live
 
 Both profiles share the OP Stack base; they differ in the privacy model exposed.
 
 - [x] Profile selector wired: `SHH_PROFILE=full-privacy|open-pool` in deploy + devnet env,
       recorded in the deployment manifest and surfaced via `/api/config`.
 - [ ] **Profile A — Full privacy chain**: `ShieldedPool` predeploy + default UX through notes.
-- [ ] **Profile B — Open L3 + Privacy Pool**: transparent L3 + `PrivacyPool` + ASP (app-layer
-      deploy works today via `deploy:local`).
+- [x] **Profile B — Open L3 + Privacy Pool**: transparent L3 + `PrivacyPool` + ASP — deployed
+      and **live** on the L3 (`deploy:shh`), with an ASP publisher keeping the association root current.
 - [ ] Per-profile genesis predeploys (needs the booted devnet from Phase 2).
 
 **Gate:** each profile boots from a single config flag and passes its smoke test.
@@ -105,27 +105,32 @@ spendable shielded note on L3; withdrawal returns funds on Base.
 
 ---
 
-## Phase 6 — SDK + app ◐ backend done, frontend deferred
+## Phase 6 — SDK + app ◐ live (Privacy Pool wallet shipped)
 
 - [x] `apps/web` **backend** (Next.js route handlers): config, pool leaves, association path,
       shielded events, relayer withdraw. Verified end to end against a local node.
 - [x] Relayer: `POST /api/relayer/withdraw` (gasless Privacy Pool withdrawals).
 - [x] Turn-key local stack: `pnpm dev` (chain + deploy + artifacts + backend).
 - [x] `@privashh/sdk` isomorphic (poseidon-lite + Web Crypto), split into browser-safe `.` and
-      node-only `./node` — browser proving is ready (no node builtins on the `.` entry).
-- [ ] Frontend UI (deferred): wallet connect + deposit/transfer/withdraw, client-side
-      Web-Worker proving (`snarkjs.min.js` + circuit wasm/zkey already staged in `public/`).
+      node-only `./node`. **Published to npm as `@privashh/sdk`.**
+- [x] Frontend UI — Privacy Pool wallet (connect + deposit + gasless withdraw) with in-browser
+      Web-Worker proving, shipped in the landing app at `shh.gg/app`. (Shielded transfer UI deferred.)
 
 **Gate:** a user can deposit, privately transfer, and withdraw from the UI on devnet.
 
 ---
 
-## Phase 7 — Testnet
+## Phase 7 — Testnet ◐ live
 
-- [ ] Deploy bridge + verifiers + pools to Base Sepolia.
-- [ ] Public devnet sequencer; explorer hosted.
+- [x] OP Stack L1 contracts deployed to Base Sepolia (op-deployer); privacy core (verifiers +
+      pools + ASP) deployed to the L3 via `deploy:shh`.
+- [x] Public single sequencer + TLS RPC (`rpc.shh.gg`); wallet hosted at `shh.gg/app`.
+- [ ] Explorer hosted (Blockscout scaffold ready in `infra/explorer/`).
+- [x] **End-to-end verified on chain 55666**: deposit → ASP publishes association root →
+      in-browser proof → gasless relayer withdrawal pays the recipient; nullifier marked spent.
 
-**Gate:** external wallet completes the full flow on Base Sepolia.
+**Gate:** external wallet completes the full flow on Base Sepolia. (Bridge live-wiring + explorer
+hosting remain.)
 
 ---
 
