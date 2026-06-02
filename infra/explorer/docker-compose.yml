@@ -57,6 +57,10 @@ services:
       PORT: "4000"
       API_V2_ENABLED: "true"
       DISABLE_EXCHANGE_RATES: "true"
+      # Behind the Caddy proxy every request shares one source IP, so per-IP API rate limiting
+      # trips instantly (429) — the frontend's "too many requests" page then crashes (no reCAPTCHA
+      # key). Disable it for this single-sequencer testnet.
+      API_RATE_LIMIT_DISABLED: "true"
       # op-geth's public HTTP has no debug namespace → skip trace-based fetchers.
       INDEXER_DISABLE_INTERNAL_TRANSACTIONS_FETCHER: "true"
       INDEXER_DISABLE_PENDING_TRANSACTIONS_FETCHER: "true"
