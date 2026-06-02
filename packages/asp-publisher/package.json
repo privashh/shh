@@ -1,0 +1,20 @@
+{
+  "name": "@shh/asp-publisher",
+  "version": "0.1.0",
+  "private": true,
+  "description": "shh Association Set Provider publisher — recompute the association-set Merkle root from on-chain deposits and publish it via AssociationSetProvider.publishRoot.",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@privashh/sdk": "workspace:*",
+    "ethers": "^6.13.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
