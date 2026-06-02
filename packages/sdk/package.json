@@ -1,6 +1,6 @@
 {
   "name": "@privashh/sdk",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "shh client SDK: notes, Poseidon Merkle tree, witness + Groth16 proof generation",
   "repository": {
     "type": "git",
