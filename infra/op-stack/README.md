@@ -32,12 +32,12 @@ production.
 ```bash
 cp .env.example .env         # fill L1_RPC and funded GS_* keys (no beacon RPC needed)
 
-# 1. deploy OP Stack L1 contracts onto Base Sepolia + emit genesis/rollup config
-./scripts/generate.sh        # wraps op-deployer; writes ./configs/{genesis,rollup}.json + jwt
-# 2. copy the DisputeGameFactory address from ./.deployer/state.json into DGF_ADDRESS in .env
-# 3. boot (op-geth-init runs the genesis init, then the L3 services start)
+# 1. deploy OP Stack contracts to Base Sepolia (custom intent — Base has no pre-deployed OPCM),
+#    emit genesis/rollup/l1-chain-config/jwt, and record DGF_ADDRESS into .env
+./scripts/generate.sh
+# 2. boot (op-geth-init initialises the datadir, then the L3 services start)
 docker compose up -d
-# 4. verify L3 blocks are being produced
+# 3. verify L3 blocks are being produced
 cast block latest --rpc-url http://localhost:9545
 ```
 
