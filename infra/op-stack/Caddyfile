@@ -1,0 +1,21 @@
+# Public TLS front for the shh L3 RPC. Caddy obtains/renews a Let's Encrypt cert for
+# $RPC_DOMAIN automatically (requires ports 80/443 reachable from the internet and a DNS
+# A record for $RPC_DOMAIN pointing at this host).
+#
+# It reverse-proxies to op-geth's PUBLIC-SAFE HTTP port (web3,eth,net only — no miner/debug/
+# engine; see docker-compose.yml). CORS is opened so browser wallets can call the RPC directly.
+{$RPC_DOMAIN} {
+	encode gzip
+
+	# Browser CORS: allow any origin to POST JSON-RPC and read the response.
+	header {
+		Access-Control-Allow-Origin "*"
+		Access-Control-Allow-Methods "POST, OPTIONS"
+		Access-Control-Allow-Headers "Content-Type"
+	}
+	# Answer CORS preflight without hitting the backend.
+	@preflight method OPTIONS
+	respond @preflight 204
+
+	reverse_proxy op-geth:9545
+}

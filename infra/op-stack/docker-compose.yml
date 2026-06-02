@@ -36,8 +36,19 @@ services:
       - --http
       - --http.addr=0.0.0.0
       - --http.port=9545
-      - --http.api=web3,debug,eth,net,engine,miner # miner_setMaxDASize: op-batcher DA throttling
-      - --http.vhosts=* # accept the op-geth service hostname inside the compose network
+      # PUBLIC-SAFE namespaces only. The Caddy proxy exposes THIS port to the internet
+      # (https://rpc.<domain>), so it must not carry miner/debug/engine. The batcher's
+      # privileged miner_setMaxDASize call goes over the internal-only WS port below.
+      - --http.api=web3,eth,net
+      - --http.vhosts=* # accept the op-geth service hostname (and the proxy) by name
+      # WS = full internal API set, reachable only on the compose network (never host-published).
+      # op-batcher connects here for miner_setMaxDASize; keeping it off HTTP keeps the public
+      # surface clean without needing a separate JSON-RPC method filter.
+      - --ws
+      - --ws.addr=0.0.0.0
+      - --ws.port=8546
+      - --ws.api=web3,eth,net,miner,debug
+      - --ws.origins=*
       - --authrpc.addr=0.0.0.0
       - --authrpc.port=8551
       - --authrpc.vhosts=* # op-node reaches the engine API by service name, not localhost
@@ -54,7 +65,9 @@ services:
       - ./configs:/config:ro
       - geth-data:/data
     ports:
-      - "9545:9545"
+      # Bind to loopback only: the host's :9545 is for local `cast` on the box. Public access
+      # goes through the TLS proxy (rpc-proxy), never the raw EL port.
+      - "127.0.0.1:9545:9545"
 
   op-node:
     image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:${OP_NODE_TAG:-v1.19.0}
@@ -91,7 +104,9 @@ services:
     command:
       - op-batcher
       - --l1-eth-rpc=${L1_RPC}
-      - --l2-eth-rpc=http://op-geth:9545
+      # WS, not HTTP: this is the only endpoint exposing the miner namespace
+      # (miner_setMaxDASize, used for DA throttling). HTTP is the public-safe set.
+      - --l2-eth-rpc=ws://op-geth:8546
       - --rollup-rpc=http://op-node:8547
       - --private-key=${GS_BATCHER_PRIVATE_KEY}
       - --data-availability-type=calldata # simplest/reliable on a testnet; switch to blobs to cut L1 cost
@@ -113,5 +128,25 @@ services:
       - --proposal-interval=3600s # each proposal posts an L1 tx + bond; keep cadence sane on a real L1
       - --poll-interval=12s
 
+  # Public TLS endpoint for the L3 RPC. Caddy auto-provisions a Let's Encrypt cert for
+  # $RPC_DOMAIN (needs ports 80/443 reachable + an A record pointing at this host), adds CORS
+  # so browsers can call the RPC directly, and reverse-proxies to op-geth's public-safe HTTP
+  # port. Only this service is internet-facing; op-geth's raw port stays on loopback.
+  rpc-proxy:
+    image: caddy:2.8-alpine
+    depends_on: [op-geth]
+    restart: unless-stopped
+    environment:
+      - RPC_DOMAIN=${RPC_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    ports:
+      - "80:80"
+      - "443:443"
+
 volumes:
   geth-data:
+  caddy-data:
+  caddy-config:

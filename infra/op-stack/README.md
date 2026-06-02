@@ -26,6 +26,15 @@ production.
 | `op-node`      | `.../op-node`                                             | L3 derivation + single sequencer         |
 | `op-batcher`   | `.../op-batcher`                                          | posts L3 batches to Base (calldata)      |
 | `op-proposer`  | `.../op-proposer`                                         | posts L3 output roots to the DGF on Base |
+| `rpc-proxy`    | `caddy`                                                   | public TLS endpoint for the L3 RPC       |
+
+## Public RPC (TLS)
+
+op-geth's HTTP port carries only the **public-safe** namespaces (`web3,eth,net`); the privileged
+`miner` namespace the batcher needs (`miner_setMaxDASize`) lives on an **internal-only WS** port.
+The raw HTTP port binds to loopback (`127.0.0.1:9545`) — only `rpc-proxy` (Caddy) is
+internet-facing. Set `RPC_DOMAIN` in `.env`, point a DNS A record at this host, open ports
+80/443, and Caddy provisions a Let's Encrypt cert automatically → public RPC at `https://$RPC_DOMAIN`.
 
 ## Bring it up
 
