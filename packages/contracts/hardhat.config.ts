@@ -15,6 +15,12 @@ const config: HardhatUserConfig = {
   networks: {
     hardhat: {},
     localhost: { url: process.env.SHH_RPC_URL || "http://127.0.0.1:8545" },
+    // The booted shh L3 (OP Stack). Deploy the privacy core here post-boot.
+    shh: {
+      url: process.env.SHH_RPC_URL || "http://127.0.0.1:9545",
+      accounts: DEPLOYER,
+      chainId: Number(process.env.SHH_CHAIN_ID || 42069),
+    },
     baseSepolia: {
       url: process.env.BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org",
       accounts: DEPLOYER,
