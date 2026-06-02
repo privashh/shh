@@ -18,8 +18,8 @@ cryptographic core:
   Privacy Pool (fixed denomination + Association Sets, so withdrawals are "unlockable" by an
   Association Set Provider).
 
-It runs locally with a single sequencer via Docker Compose and deploys to Base Sepolia /
-mainnet by swapping the settlement endpoint and keys.
+It runs locally with a single sequencer via Docker Compose, and is **live as a public testnet
+L3 settling to Base Sepolia** — see [Live testnet](#live-testnet).
 
 ## Layout
 
@@ -27,12 +27,13 @@ mainnet by swapping the settlement endpoint and keys.
 packages/
   circuits/   Circom circuits + trusted-setup tooling (the zk core)
   contracts/  Hardhat: pools, Poseidon Merkle tree, bridges, generated verifiers
-  sdk/        TypeScript: notes, Merkle tree, witness + proof generation
+  sdk/        TypeScript: notes, Merkle tree, witness + proof generation (npm: @privashh/sdk)
+  asp-publisher/  daemon: publishes the Privacy Pool association-set root on-chain
 infra/
-  op-stack/   Docker Compose single-sequencer L3 devnet
+  op-stack/   Docker Compose single-sequencer L3 (live; settles to Base Sepolia)
   explorer/   Blockscout
 apps/
-  web/        Next.js UI (deposit / shielded transfer / withdraw)
+  web/        Next.js wallet backend (route handlers; local dev)
 docs/
   workflow.md          phased build plan + verification gates
   architecture.md      system architecture
@@ -71,8 +72,40 @@ cd infra/op-stack && cp .env.example .env && make generate && docker compose up 
 cd infra/explorer && cp .env.example .env && docker compose up -d
 ```
 
-> Status: privacy core **done & verified**; full stack scaffolded & turn-key. See
-> [docs/workflow.md](docs/workflow.md).
+> Status: **live on a public testnet** — the L3, privacy core, ASP publisher, and public RPC are
+> up, and the client SDK is published to npm. The wallet UI (in-browser proving) is in progress.
+> See [docs/workflow.md](docs/workflow.md).
+
+## Live testnet
+
+shh runs as a public OP Stack L3 settling to **Base Sepolia**.
+
+| | |
+| --- | --- |
+| Chain ID | `55666` |
+| RPC | `https://rpc.shh.gg` |
+| Settlement (L1) | Base Sepolia (`84532`) |
+| Profile | open-pool (transparent L3 + Privacy Pool) |
+| Pool denomination | 0.1 ETH |
+
+**Deployed contracts** (open-pool profile):
+
+| Contract | Address |
+| --- | --- |
+| PrivacyPool | `0x611Eb371557F7db14b843be44C086eB0aF6a9ebf` |
+| ShieldedPool | `0x4d306a129C5aA56Eb3F164581944A7186c8630Fb` |
+| AssociationSetProvider | `0x8C984B0Ae4783dc333D5A2A2D15108b488DDa2B5` |
+| PoolWithdrawVerifier | `0x5ec1Ba4901C11Cd6096A262c8934ab3f1F044FBc` |
+| Transaction2x2Verifier | `0xDD552646af0065C92C65041b99AaE2aef2261Fb5` |
+| Poseidon hasher | `0xCB8f37dA7b28a98f19F70285b76603Fac8cEacaD` |
+
+An ASP publisher keeps the association-set root current on-chain, so deposits become
+withdrawable. The client SDK is published as
+[`@privashh/sdk`](https://www.npmjs.com/package/@privashh/sdk):
+
+```bash
+npm install @privashh/sdk
+```
 
 ## Security
 
