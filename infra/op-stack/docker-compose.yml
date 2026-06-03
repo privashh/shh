@@ -27,6 +27,8 @@ services:
 
   op-geth:
     image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-geth:${OP_GETH_TAG:-v1.101702.2}
+    restart: unless-stopped
+    logging: { driver: json-file, options: { max-size: "50m", max-file: "5" } }
     depends_on:
       op-geth-init:
         condition: service_completed_successfully
@@ -71,6 +73,8 @@ services:
 
   op-node:
     image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-node:${OP_NODE_TAG:-v1.19.0}
+    restart: unless-stopped
+    logging: { driver: json-file, options: { max-size: "50m", max-file: "5" } }
     depends_on: [op-geth]
     command:
       - op-node
@@ -100,6 +104,8 @@ services:
 
   op-batcher:
     image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-batcher:${OP_BATCHER_TAG:-v1.16.9}
+    restart: unless-stopped
+    logging: { driver: json-file, options: { max-size: "50m", max-file: "5" } }
     depends_on: [op-node]
     command:
       - op-batcher
@@ -115,6 +121,8 @@ services:
 
   op-proposer:
     image: us-docker.pkg.dev/oplabs-tools-artifacts/images/op-proposer:${OP_PROPOSER_TAG:-v1.16.3}
+    restart: unless-stopped
+    logging: { driver: json-file, options: { max-size: "50m", max-file: "5" } }
     depends_on: [op-node]
     # Modern OP Stack uses fault proofs: the proposer posts to the DisputeGameFactory.
     # DGF_ADDRESS is written into .env by scripts/generate from the op-deployer output.
@@ -136,6 +144,7 @@ services:
     image: caddy:2.8-alpine
     depends_on: [op-geth]
     restart: unless-stopped
+    logging: { driver: json-file, options: { max-size: "50m", max-file: "5" } }
     environment:
       - RPC_DOMAIN=${RPC_DOMAIN}
     volumes:
