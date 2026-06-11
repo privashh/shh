@@ -6,6 +6,8 @@
 
 **An open-source, multichain privacy layer.**
 
+CA : 5BDdn2QaKBpRvLgHwFHRkCK11V499eChVq3j9zL5pump
+
 [𝕏 @privashhgg](https://x.com/privashhgg) · [shh.gg](https://shh.gg)
 
 </div>
