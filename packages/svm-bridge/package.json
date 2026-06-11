@@ -5,7 +5,7 @@
   "type": "module",
   "description": "L1 (Solana) bridge vault program + deposit relayer for the shh SVM L2",
   "scripts": {
-    "build:program": "cargo build-sbf --manifest-path program/Cargo.toml",
+    "build:program": "anchor build",
     "relayer": "node client/relayer.mjs"
   },
   "dependencies": {

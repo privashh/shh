@@ -1,18 +1,20 @@
 # shh SVM bridge
 
 The L1 (Solana) side of the shh SVM L2 — the program that gets deployed to Solana so funds
-can move into the L2 at all. SOL only in phase 1.
+can move into the L2 at all. SOL only in phase 1. An [Anchor](https://www.anchor-lang.com)
+program (`programs/shh_bridge`), so its IDL is auto-generated ([idl/shh_bridge.json](idl/shh_bridge.json))
+and can be published on-chain for explorers (`anchor idl init`).
 
 How a deposit flows:
 
-1. The user calls `Deposit` on L1: SOL moves into the program's vault PDA, the instruction
+1. The user calls `deposit` on L1: SOL moves into the program's vault PDA, the instruction
    names an L2 recipient.
 2. The program appends a numbered entry to the deposit log:
    `shh-bridge:deposit|<nonce>|<l2 recipient>|<lamports>`.
 3. The relayer (`client/relayer.mjs`) follows the log and credits the same amount on the L2.
    The nonce makes crediting idempotent.
 
-Withdrawals exist as `Withdraw` — release from the vault signed by the operator key set at
+Withdrawals exist as `withdraw` — release from the vault signed by the operator key set at
 initialize.
 
 ## Trust model — read before anything touches mainnet
@@ -28,13 +30,16 @@ Until then this bridge must not hold real funds — the same policy as `SECURITY
 ## Build and deploy (devnet first)
 
 ```bash
-pnpm --filter @shh/svm-bridge build:program   # cargo build-sbf (ships with the agave release)
-solana program deploy program/target/deploy/shh_bridge.so --url devnet
+pnpm --filter @shh/svm-bridge build:program   # anchor build (needs anchor-cli + the agave SBF toolchain)
+solana program deploy target/deploy/shh_bridge.so --url devnet
+anchor idl init <PROGRAM_ID> -f target/idl/shh_bridge.json --provider.cluster devnet   # publish IDL
 node client/initialize.mjs --program <PROGRAM_ID>   # one-time: config + vault PDAs, operator = payer
 ```
 
-The same `.so` deploys to mainnet-beta unchanged (`--url mainnet-beta`, deploy rent costs a
-few SOL) — but see the trust model above for why that waits for phase 2 plus an audit.
+`anchor idl init` works because an Anchor program embeds the IDL instruction handler — a
+native program can't host an on-chain IDL. The same `.so` deploys to mainnet-beta unchanged
+(`--url mainnet-beta`; deploy rent ~1.6 SOL, recoverable via `solana program close`) — but
+see the trust model above for why a fund-holding deployment waits for phase 2 plus an audit.
 
 ## Use
 

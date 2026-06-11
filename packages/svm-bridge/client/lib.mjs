@@ -1,9 +1,12 @@
-// Shared helpers for the shh bridge clients: keypair loading, PDA derivation, instruction
-// builders matching program/src/lib.rs (1-byte tag + little-endian fields).
+// Shared helpers for the shh bridge clients. The on-chain program is an Anchor program, so
+// instruction data = 8-byte discriminator (sha256("global:<ix>")[..8]) ++ borsh(args), and
+// account order/flags match the program's #[derive(Accounts)] structs. Verified against the
+// published IDL (idl/shh_bridge.json).
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { homedir } from "node:os";
+import { createHash } from "node:crypto";
 import { Keypair, PublicKey, SystemProgram, TransactionInstruction } from "@solana/web3.js";
 
 export const DEFAULT_KEYPAIR = join(homedir(), ".config", "solana", "id.json");
@@ -26,6 +29,17 @@ export function pdas(programId) {
   return { config, vault };
 }
 
+// Anchor instruction discriminator: first 8 bytes of sha256("global:<name>").
+function disc(name) {
+  return createHash("sha256").update(`global:${name}`).digest().subarray(0, 8);
+}
+
+function u64le(n) {
+  const b = Buffer.alloc(8);
+  b.writeBigUInt64LE(BigInt(n));
+  return b;
+}
+
 export function ixInitialize({ programId, payer, operator }) {
   const { config, vault } = pdas(programId);
   return new TransactionInstruction({
@@ -33,20 +47,17 @@ export function ixInitialize({ programId, payer, operator }) {
     keys: [
       { pubkey: payer, isSigner: true, isWritable: true },
       { pubkey: config, isSigner: false, isWritable: true },
-      { pubkey: vault, isSigner: false, isWritable: true },
+      { pubkey: vault, isSigner: false, isWritable: false },
       { pubkey: operator, isSigner: false, isWritable: false },
       { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
     ],
-    data: Buffer.from([0]),
+    data: disc("initialize"),
   });
 }
 
 export function ixDeposit({ programId, depositor, amountLamports, l2Recipient }) {
   const { config, vault } = pdas(programId);
-  const data = Buffer.alloc(41);
-  data[0] = 1;
-  data.writeBigUInt64LE(BigInt(amountLamports), 1);
-  l2Recipient.toBuffer().copy(data, 9);
+  const data = Buffer.concat([disc("deposit"), u64le(amountLamports), l2Recipient.toBuffer()]);
   return new TransactionInstruction({
     programId,
     keys: [
@@ -61,9 +72,7 @@ export function ixDeposit({ programId, depositor, amountLamports, l2Recipient })
 
 export function ixWithdraw({ programId, operator, amountLamports, recipient }) {
   const { config, vault } = pdas(programId);
-  const data = Buffer.alloc(9);
-  data[0] = 2;
-  data.writeBigUInt64LE(BigInt(amountLamports), 1);
+  const data = Buffer.concat([disc("withdraw"), u64le(amountLamports)]);
   return new TransactionInstruction({
     programId,
     keys: [
@@ -71,6 +80,7 @@ export function ixWithdraw({ programId, operator, amountLamports, recipient }) {
       { pubkey: config, isSigner: false, isWritable: false },
       { pubkey: vault, isSigner: false, isWritable: true },
       { pubkey: recipient, isSigner: false, isWritable: true },
+      { pubkey: SystemProgram.programId, isSigner: false, isWritable: false },
     ],
     data,
   });
