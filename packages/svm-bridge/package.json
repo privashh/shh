@@ -1,0 +1,14 @@
+{
+  "name": "@shh/svm-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "L1 (Solana) bridge vault program + deposit relayer for the shh SVM L2",
+  "scripts": {
+    "build:program": "cargo build-sbf --manifest-path program/Cargo.toml",
+    "relayer": "node client/relayer.mjs"
+  },
+  "dependencies": {
+    "@solana/web3.js": "^1.98.4"
+  }
+}

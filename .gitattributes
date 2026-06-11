@@ -1,0 +1,3 @@
+# Shell scripts and configs under infra/svm-l2 are mounted into Linux containers —
+# CRLF would break them on a Windows checkout.
+infra/svm-l2/** text eol=lf

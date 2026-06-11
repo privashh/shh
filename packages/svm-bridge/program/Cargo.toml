@@ -1,0 +1,25 @@
+[package]
+name = "shh-bridge"
+version = "0.1.0"
+edition = "2021"
+description = "L1 (Solana) bridge vault for the shh SVM L2: SOL custody + deposit log + operator-signed withdrawals"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+no-entrypoint = []
+
+[dependencies]
+solana-program = "3"
+
+# Silence the entrypoint! macro's well-known check-cfg noise (custom-heap/custom-panic/target_os).
+[lints.rust.unexpected_cfgs]
+level = "warn"
+check-cfg = [
+  'cfg(target_os, values("solana"))',
+  'cfg(feature, values("custom-heap", "custom-panic", "frozen-abi", "no-entrypoint"))',
+]
+
+[profile.release]
+overflow-checks = true

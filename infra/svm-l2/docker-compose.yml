@@ -1,0 +1,92 @@
+# shh — single-node SVM devnet (the SVM privacy-layer profile), anchored to Solana.
+#
+# Phase 1 of the SVM profile: one agave test validator is sequencer + RPC + faucet.
+#   * Program deploys work out of the box (`solana program deploy` against :8899) — this chain
+#     exists so the Groth16 shielded pool can land on it as a native SVM program (phase 2; the
+#     BN254 circuits in packages/circuits verify on SVM via the alt_bn128 syscalls).
+#   * Privacy available today: Token-2022 confidential transfers (amounts encrypted on-chain
+#     via the ZK ElGamal proof program, enabled on a fresh agave genesis). See scripts/.
+#   * The settler anchors the L2 ledger tip to Solana devnet on an interval — the SVM twin of
+#     op-proposer. Ledger-tip memos for now; state commitments + DA batches are phase 2.
+#
+# State lives in named volumes. The ledger is size-capped (--limit-ledger-size) so an
+# unattended devnet can never fill the disk.
+
+name: shh-svm-devnet
+
+services:
+  svm-node:
+    image: anzaxyz/agave:${AGAVE_TAG:-v3.1.14}
+    restart: unless-stopped
+    logging: { driver: json-file, options: { max-size: "50m", max-file: "5" } }
+    # The image's default entrypoint is the full validator; this devnet wants the test
+    # validator: instant genesis, faucet built in, all runtime features (incl. ZK ElGamal)
+    # active, SPL programs (Token, Token-2022, Memo, ATA) preloaded.
+    entrypoint: ["solana-test-validator"]
+    command:
+      - --ledger=/data/ledger
+      - --rpc-port=8899
+      - --bind-address=0.0.0.0
+      - --dynamic-port-range=8002-8020
+      # Cap stored shreds (~a few GB worst case): old slots get pruned instead of growing
+      # without bound. A devnet needs recent history, not an archive.
+      - --limit-ledger-size=5000000
+      # Stream the log instead of drawing the interactive dashboard (useless in docker,
+      # and the dashboard redraws would bloat the json-file logs).
+      - --log
+    volumes:
+      - svm-ledger:/data
+      - ./scripts:/scripts:ro
+    ports:
+      # Loopback only, same policy as op-geth: local `solana` CLI talks to :8899 directly;
+      # public exposure (svm-rpc.<domain>) goes through a TLS proxy when we get there.
+      - "127.0.0.1:8899:8899" # JSON-RPC
+      - "127.0.0.1:8900:8900" # pubsub websocket
+    healthcheck:
+      test: ["CMD", "solana", "cluster-version", "--url", "http://127.0.0.1:8899"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+      start_period: 20s
+
+  # Anchors this chain to Solana (devnet by default): reads the L2 ledger tip, posts it as a
+  # Memo tx on the settlement chain. Keypair persists in the settler-data volume; devnet
+  # airdrops are best-effort — fund the printed address if the faucet rate-limits.
+  settler:
+    build: ./settler
+    restart: unless-stopped
+    logging: { driver: json-file, options: { max-size: "50m", max-file: "5" } }
+    depends_on:
+      svm-node:
+        condition: service_healthy
+    environment:
+      - SVM_RPC=http://svm-node:8899
+      - L1_RPC=${SETTLE_L1_RPC:-https://api.devnet.solana.com}
+      - ANCHOR_INTERVAL_SECONDS=${ANCHOR_INTERVAL_SECONDS:-300}
+    volumes:
+      - settler-data:/data
+
+  # L1 -> L2 deposit relayer (packages/svm-bridge): follows the bridge program's deposit log
+  # on the settlement chain and credits the L2. Off by default — it needs the bridge program
+  # deployed first (BRIDGE_PROGRAM_ID in .env). Enable with: docker compose --profile bridge up -d
+  bridge-relayer:
+    build: ../../packages/svm-bridge
+    profiles: [bridge]
+    restart: unless-stopped
+    logging: { driver: json-file, options: { max-size: "50m", max-file: "5" } }
+    depends_on:
+      svm-node:
+        condition: service_healthy
+    environment:
+      # :- not :? — compose interpolates even for disabled profiles, so a hard requirement
+      # here would break plain `docker compose up`. The relayer itself refuses to start empty.
+      - BRIDGE_PROGRAM_ID=${BRIDGE_PROGRAM_ID:-}
+      - L1_RPC=${SETTLE_L1_RPC:-https://api.devnet.solana.com}
+      - SVM_RPC=http://svm-node:8899
+    volumes:
+      - bridge-data:/data
+
+volumes:
+  svm-ledger:
+  settler-data:
+  bridge-data:
