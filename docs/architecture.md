@@ -25,6 +25,8 @@
 | Contracts | Pools, Merkle tree, bridges, verifiers       | Solidity (Hardhat) | `packages/contracts` |
 | Client    | Notes, Merkle, witness/proof gen             | TypeScript         | `packages/sdk`       |
 | Chain     | op-geth / op-node / op-batcher / op-proposer | Docker Compose     | `infra/op-stack`     |
+| Chain (SVM) | agave node + settler (anchors to Solana)   | Docker Compose     | `infra/svm-l2`       |
+| Bridge (SVM) | Solana L1 vault program + deposit relayer | Rust + Node        | `packages/svm-bridge` |
 | Indexer   | Block explorer                               | Blockscout         | `infra/explorer`     |
 | App       | Deposit / transfer / withdraw UI             | Next.js            | `apps/web`           |
 
@@ -70,6 +72,18 @@ transaction proof (2-in / 2-out):
   • extDataHash binds recipient / relayer / fee / encrypted outputs
 publicAmount > 0 ⇒ deposit, < 0 ⇒ withdraw, = 0 ⇒ private transfer.
 ```
+
+## SVM track (Solana)
+
+The same cryptographic core targets a second execution layer: an SVM chain settling to
+Solana. The circuits are BN254 and Solana exposes the `alt_bn128` syscalls, so the Groth16
+verifiers port without changing the proving stack.
+
+Today (phase 1): `infra/svm-l2` runs a single-node SVM devnet — program deploys enabled,
+Token-2022 confidential transfers natively available — with a settler anchoring the ledger
+tip to Solana devnet. `packages/svm-bridge` is the Solana-side vault: deposits lock SOL on
+L1 and a relayer credits the L2 1:1. Withdrawals stay operator-signed until proof-gated
+settlement lands; see the package READMEs for the trust model and phase map.
 
 ## Trust & upgrade model
 

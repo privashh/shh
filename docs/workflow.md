@@ -144,6 +144,29 @@ hosting remain.)
 
 ---
 
+## Track S — SVM privacy layer (Solana) ◐ scaffolded
+
+Runs alongside the EVM phases and shares the BN254 core (Solana verifies Groth16 via the
+`alt_bn128` syscalls).
+
+- [x] `infra/svm-l2` — single-node SVM devnet (agave test validator): program deploys,
+      Token-2022 confidential transfers, size-capped ledger; settler anchors the ledger tip
+      to Solana devnet as Memo txs.
+- [x] `packages/svm-bridge` — Solana L1 vault program (initialize / deposit / withdraw,
+      `cargo check` clean) + deposit relayer crediting the L2 1:1 (compose profile `bridge`).
+- [ ] Boot gate run: `make up && make verify && make demo` green (program deploy +
+      confidential transfer against the devnet).
+- [ ] Bridge live on Solana devnet: deposit → credited on the L2 → operator withdrawal.
+- [ ] Shielded pool as a native SVM program (light-poseidon tree, nullifier PDAs,
+      groth16-solana against the `packages/circuits` verification keys).
+- [ ] Proof-gated settlement: settler posts state commitments, bridge withdrawals verify
+      against them; L1 force-exit path.
+
+**Gate:** the full deposit → private transfer → withdraw loop on the SVM devnet, with
+withdrawals proof-gated before anything beyond devnet.
+
+---
+
 ## Conventions
 
 - All code, comments, identifiers, and commits in **English**.

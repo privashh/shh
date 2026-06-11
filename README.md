@@ -21,6 +21,12 @@ cryptographic core:
 It runs locally with a single sequencer via Docker Compose, and is **live as a public testnet
 L3 settling to Base Sepolia** — see [Live testnet](#live-testnet).
 
+A **SOL track** is underway as well: the same BN254 core pointed at an SVM layer settling to
+Solana (the circuits verify there via the `alt_bn128` syscalls). Today it is a single-node
+SVM devnet with native confidential transfers (Token-2022), ledger anchoring to Solana
+devnet, and a Solana L1 bridge vault for deposits — see [`infra/svm-l2`](infra/svm-l2) and
+[`packages/svm-bridge`](packages/svm-bridge).
+
 ## Layout
 
 ```
@@ -29,8 +35,10 @@ packages/
   contracts/  Hardhat: pools, Poseidon Merkle tree, bridges, generated verifiers
   sdk/        TypeScript: notes, Merkle tree, witness + proof generation (npm: @privashh/sdk)
   asp-publisher/  daemon: publishes the Privacy Pool association-set root on-chain
+  svm-bridge/ Solana L1 bridge vault program + deposit relayer (SVM profile)
 infra/
   op-stack/   Docker Compose single-sequencer L3 (live; settles to Base Sepolia)
+  svm-l2/     Docker Compose single-node SVM devnet (SVM privacy-layer profile; anchors to Solana devnet)
   explorer/   Blockscout
 apps/
   web/        Next.js wallet backend (route handlers; local dev)
@@ -65,11 +73,12 @@ pnpm contracts:test               # 10/10 deposit→prove→withdraw, double-spe
                                   #       bidirectional shielded bridge, front-running
 ```
 
-Real L3 + explorer (Docker; chain boot is optional — see each README):
+Real chains + explorer (Docker; chain boot is optional — see each README):
 
 ```bash
 cd infra/op-stack && cp .env.example .env && make generate && docker compose up -d
 cd infra/explorer && cp .env.example .env && docker compose up -d
+cd infra/svm-l2   && cp .env.example .env && make up        # SVM devnet anchored to Solana
 ```
 
 > Status: **live on a public testnet** — the L3, privacy core, ASP publisher, and public RPC are
