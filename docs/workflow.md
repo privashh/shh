@@ -1,6 +1,7 @@
 # shh — Build Workflow
 
-The master plan for building **shh**, a Base-based Privacy L3 on the OP Stack.
+The master plan for building **shh**, an open-source multichain privacy layer — today an
+EVM L3 on Base (OP Stack) plus an SVM track on Solana (Track S), sharing one BN254 core.
 Each phase has concrete **deliverables** and a **verification gate** that must pass
 before moving on. The goal is a complete, reproducible, locally-runnable system that
 can also be deployed to Base Sepolia / Base mainnet.

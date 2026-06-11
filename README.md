@@ -4,13 +4,17 @@
 
 # shh
 
-**A privacy L3 on Base, built on the OP Stack.**
+**An open-source, multichain privacy layer.**
 
 [𝕏 @privashhgg](https://x.com/privashhgg) · [shh.gg](https://shh.gg)
 
 </div>
 
-A **privacy L3 on Base**, built on the OP Stack. shh ships in two profiles that share one
+**shh** is an open-source, multichain privacy layer: one zero-knowledge core (Circom +
+Groth16 on BN254), deployed across execution layers. Live today as an **EVM L3 settling to
+Base**; an **SVM layer settling to Solana** is underway on the same core.
+
+**EVM track — privacy L3 on Base (OP Stack).** Ships in two profiles that share the
 cryptographic core:
 
 - **Full privacy chain** — every transfer is a shielded UTXO note (Circom + Groth16).
@@ -21,11 +25,10 @@ cryptographic core:
 It runs locally with a single sequencer via Docker Compose, and is **live as a public testnet
 L3 settling to Base Sepolia** — see [Live testnet](#live-testnet).
 
-A **SOL track** is underway as well: the same BN254 core pointed at an SVM layer settling to
-Solana (the circuits verify there via the `alt_bn128` syscalls). Today it is a single-node
-SVM devnet with native confidential transfers (Token-2022), ledger anchoring to Solana
-devnet, and a Solana L1 bridge vault for deposits — see [`infra/svm-l2`](infra/svm-l2) and
-[`packages/svm-bridge`](packages/svm-bridge).
+**SVM track — privacy layer on Solana.** The same BN254 circuits verify on Solana via the
+`alt_bn128` syscalls. Today: a single-node SVM devnet with native confidential transfers
+(Token-2022), ledger anchoring to Solana devnet, and a Solana L1 bridge vault for deposits —
+see [`infra/svm-l2`](infra/svm-l2) and [`packages/svm-bridge`](packages/svm-bridge).
 
 ## Layout
 

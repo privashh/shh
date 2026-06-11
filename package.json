@@ -2,7 +2,7 @@
   "name": "shh",
   "private": true,
   "version": "0.1.0",
-  "description": "shh — a Base-based Privacy L3 on the OP Stack with shielded UTXO and compliant Privacy Pools",
+  "description": "shh — an open-source, multichain privacy layer: shielded UTXO + compliant Privacy Pools on one Groth16 core (EVM L3 on Base, SVM on Solana)",
   "packageManager": "pnpm@10.19.0",
   "engines": {
     "node": ">=20"
