@@ -6,9 +6,11 @@
 
 **An open-source, multichain privacy layer.**
 
-[𝕏 @privashhgg](https://x.com/privashhgg) · [shh.gg](https://shh.gg)
+[𝕏 @privashhgg](https://x.com/privashhgg)
 
 </div>
+
+CA : 0xf0e54e9c11d8FC37eb4D45dC162ec39Af867dbdE
 
 **shh** is an open-source, multichain privacy layer: one zero-knowledge core (Circom +
 Groth16 on BN254), deployed across execution layers. Live today as an **EVM L3 settling to
