@@ -6,8 +6,6 @@
 
 **An open-source, multichain privacy layer.**
 
-CA : 5BDdn2QaKBpRvLgHwFHRkCK11V499eChVq3j9zL5pump
-
 [𝕏 @privashhgg](https://x.com/privashhgg) · [shh.gg](https://shh.gg)
 
 </div>
@@ -16,7 +14,7 @@ CA : 5BDdn2QaKBpRvLgHwFHRkCK11V499eChVq3j9zL5pump
 Groth16 on BN254), deployed across execution layers. Live today as an **EVM L3 settling to
 Base**; an **SVM layer settling to Solana** is underway on the same core.
 
-**EVM track — privacy L3 on Base (OP Stack).** Ships in two profiles that share the
+**EVM track — privacy L3 on Robinhood Chain (ARB Stack).** Ships in two profiles that share the
 cryptographic core:
 
 - **Full privacy chain** — every transfer is a shielded UTXO note (Circom + Groth16).
@@ -92,7 +90,7 @@ cd infra/svm-l2   && cp .env.example .env && make up        # SVM devnet anchore
 
 ## Live testnet
 
-shh runs as a public OP Stack L3 settling to **Base Sepolia**.
+shh runs as a public ARB Stack L3 settling to **Robinhood Testnet**.
 
 | | |
 | --- | --- |
